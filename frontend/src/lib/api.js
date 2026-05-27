@@ -29,15 +29,14 @@ async function request(path, options = {}) {
   const url = `${API_BASE}${path}`;
   const token = await getToken();
   const headers = { 'Content-Type': 'application/json', ...options.headers };
-  
+
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
   const config = {
-    headers,
-    credentials: 'include',
     ...options,
+    headers,
   };
 
   if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
@@ -46,6 +45,14 @@ async function request(path, options = {}) {
 
   const res = await fetch(url, config);
   if (!res.ok) {
+    if (res.status === 401) {
+      const { supabase } = await import('./supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.auth.signOut();
+        window.dispatchEvent(new CustomEvent('authExpired'));
+      }
+    }
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(err.message || `Request failed: ${res.status}`);
   }

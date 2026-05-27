@@ -113,22 +113,27 @@ function App() {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    (async () => {
+      const { data } = await supabase.auth.getSession();
       const session = data?.session;
       const user = session?.user;
-      if (user) {
-        const profile = {
-          id: user.id,
-          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          email: user.email
-        };
-        setUserProfile(profile);
-        setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
-        loadCart(user.id);
-        loadFavorites(user.id);
-        loadNotifications(user.id);
+      if (!user || !session?.access_token) return;
+      const { error: tokenError } = await supabase.auth.getUser(session.access_token);
+      if (tokenError) {
+        await supabase.auth.signOut();
+        return;
       }
-    }).catch(() => {});
+      const profile = {
+        id: user.id,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email
+      };
+      setUserProfile(profile);
+      setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
+      loadCart(user.id);
+      loadFavorites(user.id);
+      loadNotifications(user.id);
+    })();
   }, [loadCart, loadFavorites, loadNotifications]);
 
   useEffect(() => {
@@ -147,8 +152,19 @@ function App() {
         loadNotifications(user.id);
       }
     };
+    const handleAuthExpired = () => {
+      setUserProfile(null);
+      setIsAdmin(false);
+      setCartItems([]);
+      setFavorites([]);
+      setNotifCount(0);
+    };
     window.addEventListener('authChanged', handleAuthChange);
-    return () => window.removeEventListener('authChanged', handleAuthChange);
+    window.addEventListener('authExpired', handleAuthExpired);
+    return () => {
+      window.removeEventListener('authChanged', handleAuthChange);
+      window.removeEventListener('authExpired', handleAuthExpired);
+    };
   }, [loadCart, loadFavorites, loadNotifications]);
 
   useEffect(() => {
