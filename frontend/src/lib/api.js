@@ -161,6 +161,14 @@ export const api = {
     delete: (id) => request(`/notifications/${id}`, { method: 'DELETE' }),
   },
 
+  messages: {
+    getAll: () => request('/messages'),
+    create: (sender, message) =>
+      request('/messages', { method: 'POST', body: { sender, message } }),
+    clear: () => request('/messages/clear', { method: 'DELETE' }),
+    remove: (id) => request(`/messages/${id}`, { method: 'DELETE' }),
+  },
+
   discountMessages: {
     getAll: () => request('/discount-messages'),
     create: (userEmail, userName, message) =>

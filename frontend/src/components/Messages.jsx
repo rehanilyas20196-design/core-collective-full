@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Bot, Send, Sparkles } from 'lucide-react';
+import { ArrowLeft, Bot, Send, Sparkles, Trash2 } from 'lucide-react';
 import { api } from '../lib/api';
 
 const supportTopics = [
@@ -176,27 +176,12 @@ const questionTemplates = [
 ];
 
 const questionTopics = [
-  'shipping',
-  'delivery',
-  'order tracking',
-  'returns',
-  'refunds',
-  'exchanges',
-  'product quality',
-  'damaged items',
-  'bulk orders',
-  'supplier quotes',
-  'payment issues',
-  'checkout help',
-  'website navigation',
-  'search help',
-  'cart issues',
-  'favorites',
-  'account login',
-  'profile settings',
-  'contact support',
-  'help center pages',
-  'admin access',
+  'shipping', 'delivery', 'order tracking', 'returns', 'refunds',
+  'exchanges', 'product quality', 'damaged items', 'bulk orders',
+  'supplier quotes', 'payment issues', 'checkout help',
+  'website navigation', 'search help', 'cart issues', 'favorites',
+  'account login', 'profile settings', 'contact support',
+  'help center pages', 'admin access',
 ];
 
 const suggestedQuestions = questionTopics.flatMap((topic) =>
@@ -208,21 +193,6 @@ const suggestedQuestions = questionTopics.flatMap((topic) =>
 );
 
 const searchableQuestionBank = suggestedQuestions.map((item) => item.question.toLowerCase());
-
-const welcomeMessages = [
-  {
-    id: 1,
-    sender: 'bot',
-    text: 'Hello! I am the Core Collective support chatbot. Ask me anything about products, shipping, returns, refunds, payments, warranties, stock, or order help.',
-    time: 'Now',
-  },
-  {
-    id: 2,
-    sender: 'bot',
-    text: `I am trained with ${suggestedQuestions.length}+ built-in support questions, so you can type naturally and I will reply here in chat.`,
-    time: 'Now',
-  },
-];
 
 const formatTime = () =>
   new Date().toLocaleTimeString([], {
@@ -287,27 +257,71 @@ const buildFallbackAnswer = () =>
   'I can help with products, shipping, delivery timing, tracking, returns, refunds, cancellations, warranties, payment issues, website navigation, search, cart, favorites, checkout, account help, and contact support. Try asking a full question like "How do I find products on the website?" or "What is your return policy?"';
 
 const Messages = ({ setPage, handleBack }) => {
-  const [messages, setMessages] = useState(welcomeMessages);
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const loadProducts = async () => {
+    let cancelled = false;
+    const init = async () => {
+      const { supabase } = await import('../lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      const loggedIn = !!session?.user;
+      if (cancelled) return;
+      setIsLoggedIn(loggedIn);
+
       try {
         setLoadingProducts(true);
         const data = await api.products.getMinimal(200);
-        setProducts(data || []);
+        if (!cancelled) setProducts(data || []);
       } catch (error) {
         console.error('Error loading chatbot products:', error);
-        setProducts([]);
+        if (!cancelled) setProducts([]);
       } finally {
-        setLoadingProducts(false);
+        if (!cancelled) setLoadingProducts(false);
+      }
+
+      if (loggedIn) {
+        try {
+          setLoadingMessages(true);
+          const history = await api.messages.getAll();
+          if (!cancelled) {
+            if (history && history.length > 0) {
+              setMessages(history);
+            } else {
+              setMessages([
+                { id: 'welcome-1', sender: 'bot', text: 'Hello! I am the Core Collective support chatbot. Ask me anything about products, shipping, returns, refunds, payments, warranties, stock, or order help.', time: 'Now', local: true },
+                { id: 'welcome-2', sender: 'bot', text: `I am trained with ${suggestedQuestions.length}+ built-in support questions, so you can type naturally and I will reply here in chat.`, time: 'Now', local: true },
+              ]);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading messages:', error);
+          if (!cancelled) {
+            setMessages([
+              { id: 'welcome-1', sender: 'bot', text: 'Hello! I am the Core Collective support chatbot. Ask me anything about products, shipping, returns, refunds, payments, warranties, stock, or order help.', time: 'Now', local: true },
+              { id: 'welcome-2', sender: 'bot', text: `I am trained with ${suggestedQuestions.length}+ built-in support questions, so you can type naturally and I will reply here in chat.`, time: 'Now', local: true },
+            ]);
+          }
+        } finally {
+          if (!cancelled) setLoadingMessages(false);
+        }
+      } else {
+        if (!cancelled) {
+          setMessages([
+            { id: 'welcome-1', sender: 'bot', text: 'Hello! I am the Core Collective support chatbot. Ask me anything about products, shipping, returns, refunds, payments, warranties, stock, or order help.', time: 'Now', local: true },
+            { id: 'welcome-2', sender: 'bot', text: `I am trained with ${suggestedQuestions.length}+ built-in support questions, so you can type naturally and I will reply here in chat.`, time: 'Now', local: true },
+          ]);
+          setLoadingMessages(false);
+        }
       }
     };
-
-    loadProducts();
+    init();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -340,33 +354,51 @@ const Messages = ({ setPage, handleBack }) => {
     return buildFallbackAnswer();
   };
 
-  const submitMessage = (messageText) => {
-    const cleaned = messageText.trim();
-    if (!cleaned) {
-      return;
+  const saveMessageToServer = async (sender, text) => {
+    if (!isLoggedIn) return null;
+    try {
+      const result = await api.messages.create(sender, text);
+      return result?.[0] || null;
+    } catch (error) {
+      console.error('Error saving message:', error);
+      return null;
     }
+  };
 
-    const userMessage = {
-      id: Date.now(),
-      sender: 'user',
-      text: cleaned,
-      time: formatTime(),
-    };
+  const submitMessage = async (messageText) => {
+    const cleaned = messageText.trim();
+    if (!cleaned) return;
 
-    const botMessage = {
-      id: Date.now() + 1,
-      sender: 'bot',
-      text: generateBotReply(cleaned),
-      time: formatTime(),
-    };
+    const userMsg = { id: `user-${Date.now()}`, sender: 'user', text: cleaned, time: formatTime() };
+    const botText = generateBotReply(cleaned);
+    const botMsg = { id: `bot-${Date.now() + 1}`, sender: 'bot', text: botText, time: formatTime() };
 
-    setMessages((prev) => [...prev, userMessage, botMessage]);
+    setMessages((prev) => [...prev, userMsg, botMsg]);
     setInputValue('');
+
+    await Promise.all([
+      saveMessageToServer('user', cleaned),
+      saveMessageToServer('bot', botText),
+    ]);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     submitMessage(inputValue);
+  };
+
+  const handleClearChat = async () => {
+    if (isLoggedIn) {
+      try {
+        await api.messages.clear();
+      } catch (error) {
+        console.error('Error clearing messages:', error);
+      }
+    }
+    setMessages([
+      { id: 'welcome-1', sender: 'bot', text: 'Hello! I am the Core Collective support chatbot. Ask me anything about products, shipping, returns, refunds, payments, warranties, stock, or order help.', time: 'Now', local: true },
+      { id: 'welcome-2', sender: 'bot', text: `I am trained with ${suggestedQuestions.length}+ built-in support questions, so you can type naturally and I will reply here in chat.`, time: 'Now', local: true },
+    ]);
   };
 
   return (
@@ -394,9 +426,20 @@ const Messages = ({ setPage, handleBack }) => {
                   </p>
                 </div>
               </div>
-              <div className="text-sm text-secondary text-right">
-                <p>Single support chatbot</p>
-                <p>{suggestedQuestions.length}+ built-in support questions</p>
+              <div className="flex items-center gap-3">
+                {isLoggedIn && (
+                  <button
+                    onClick={handleClearChat}
+                    className="text-secondary hover:text-red-500 transition-colors"
+                    title="Clear chat history"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
+                <div className="text-sm text-secondary text-right">
+                  <p>{isLoggedIn ? 'Private chat' : 'Guest chat'}</p>
+                  <p>{suggestedQuestions.length}+ built-in support questions</p>
+                </div>
               </div>
             </div>
 
@@ -413,29 +456,33 @@ const Messages = ({ setPage, handleBack }) => {
             </div>
 
             <div className="flex-1 overflow-y-auto bg-[#F6F8FB] p-5 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+              {loadingMessages ? (
+                <div className="text-center text-secondary py-12">Loading your messages...</div>
+              ) : (
+                messages.map((message) => (
                   <div
-                    className={`max-w-[720px] px-4 py-3 rounded-2xl shadow-sm ${
-                      message.sender === 'user'
-                        ? 'bg-primary text-white rounded-br-md'
-                        : 'bg-white border border-shade-border text-dark rounded-bl-md'
-                    }`}
+                    key={message.id}
+                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p className="text-sm leading-6">{message.text}</p>
-                    <p
-                      className={`text-xs mt-2 ${
-                        message.sender === 'user' ? 'text-white/70' : 'text-secondary'
+                    <div
+                      className={`max-w-[720px] px-4 py-3 rounded-2xl shadow-sm ${
+                        message.sender === 'user'
+                          ? 'bg-primary text-white rounded-br-md'
+                          : 'bg-white border border-shade-border text-dark rounded-bl-md'
                       }`}
                     >
-                      {message.time}
-                    </p>
+                      <p className="text-sm leading-6">{message.text || message.message}</p>
+                      <p
+                        className={`text-xs mt-2 ${
+                          message.sender === 'user' ? 'text-white/70' : 'text-secondary'
+                        }`}
+                      >
+                        {message.time || (message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '')}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
               <div ref={messagesEndRef} />
             </div>
 

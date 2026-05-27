@@ -15,6 +15,7 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { CartModule } from './cart/cart.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DiscountMessagesModule } from './discount-messages/discount-messages.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { DiscountMessagesModule } from './discount-messages/discount-messages.mo
     CartModule,
     NotificationsModule,
     DiscountMessagesModule,
+    MessagesModule,
   ],
 })
 export class AppModule {}
