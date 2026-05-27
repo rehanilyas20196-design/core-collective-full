@@ -222,6 +222,7 @@ const AdminPanel = ({ setPage, handleBack, userProfile }) => {
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-[#1C1C1C]">{order.full_name}</p>
+                                                        {order.user_email && <p className="text-xs text-[#505050]">{order.user_email}</p>}
                                                         <p className="text-xs text-[#505050]">ID: {order.user_id || 'N/A'}</p>
                                                         <div className="flex items-center gap-2 text-sm text-[#505050] mt-1">
                                                             <Phone size={14} />

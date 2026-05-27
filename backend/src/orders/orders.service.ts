@@ -39,9 +39,10 @@ export class OrdersService {
     return count || 0;
   }
 
-  async create(orderData: any, userId?: string) {
+  async create(orderData: any, userId?: string, userEmail?: string) {
     const payload = {
       user_id: userId || null,
+      user_email: userEmail || '',
       full_name: orderData.full_name,
       phone_number: orderData.phone_number,
       province: orderData.province,

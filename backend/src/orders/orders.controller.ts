@@ -27,7 +27,7 @@ export class OrdersController {
   @UseGuards(OptionalAuthGuard)
   async create(@Body() body: CreateOrderDto, @Req() req: Request) {
     const user = (req as any).user;
-    return this.ordersService.create(body, user?.id);
+    return this.ordersService.create(body, user?.id, user?.email);
   }
 
   @Patch(':id/status')

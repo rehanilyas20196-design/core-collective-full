@@ -2,8 +2,9 @@
 -- MIGRATION: Add user-level isolation and new admin features
 -- ============================================================
 
--- 1. Add user_id to orders
+-- 1. Add user_id and user_email to orders
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_email TEXT DEFAULT '';
 
 -- 2. Add user_id to supplier_inquiries
 ALTER TABLE supplier_inquiries ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
