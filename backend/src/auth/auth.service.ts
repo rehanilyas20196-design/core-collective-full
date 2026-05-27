@@ -33,6 +33,17 @@ export class AuthService {
     });
 
     if (error) throw new ConflictException(error.message);
+
+    if (data?.user?.id) {
+      const { error: adminError } = await this.supabase.admin.auth.admin.updateUserById(
+        data.user.id,
+        { email_confirm: true }
+      );
+      if (adminError) {
+        console.warn('Auto-confirm failed, user may need to verify email:', adminError.message);
+      }
+    }
+
     return data;
   }
 

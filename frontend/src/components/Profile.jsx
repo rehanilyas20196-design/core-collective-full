@@ -101,13 +101,27 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
 
         try {
             const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate);
-            setAuthMessage('Signup successful ✔ Check your email to confirm your account.');
             if (data?.user) {
-                setUserProfile({
-                    name: data.user.user_metadata?.full_name || formData.name || data.user.email.split('@')[0],
-                    email: data.user.email,
-                });
+                const loginData = await api.auth.login(formData.email, formData.password);
+                const user = loginData?.user || loginData?.session?.user;
+                if (user && loginData?.session) {
+                    await supabase.auth.setSession({
+                        access_token: loginData.session.access_token,
+                        refresh_token: loginData.session.refresh_token,
+                    });
+                    setAuthMessage('Account created and logged in successfully ✅');
+                    setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
+                    setUserProfile({
+                        id: user.id,
+                        name: user.user_metadata?.full_name || formData.name || user.email.split('@')[0],
+                        email: user.email,
+                    });
+                    window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
+                    setPage('home');
+                    return;
+                }
             }
+            setAuthMessage('Signup successful ✅ You can now log in.');
         } catch (error) {
             setAuthMessage(error.message || 'Unable to create account.');
             return;

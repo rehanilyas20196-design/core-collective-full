@@ -32,6 +32,7 @@ const Checkout = lazy(() => import('./components/Checkout'));
 const AdminPanel = lazy(() => import('./components/AdminPanel'));
 const SellerProfile = lazy(() => import('./components/SellerProfile'));
 const Notifications = lazy(() => import('./components/Notifications'));
+const PromoModal = lazy(() => import('./components/PromoModal'));
 
 const SectionFallback = () => <div className="py-8" />;
 
@@ -457,48 +458,10 @@ function App() {
       <Footer />
 
       {showPromoModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowPromoModal(false)}>
-          <div
-            className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-dark">Get US $10 off</h3>
-              <button
-                onClick={() => setShowPromoModal(false)}
-                className="text-dark-light hover:text-dark"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-            </div>
-            <p className="text-dark-light mb-4">Enter your details to receive your $10 discount with a new supplier.</p>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-dark mb-1">Email Address</label>
-                <input
-                  type="email"
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-2 border border-shade-border rounded-md focus:ring-1 focus:ring-primary outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-dark mb-1">Joining Date</label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-2 border border-shade-border rounded-md focus:ring-1 focus:ring-primary outline-none"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md font-medium transition-colors"
-              >
-                Claim $10 Discount
-              </button>
-            </form>
-          </div>
-        </div>
+        <PromoModal
+          userProfile={userProfile}
+          onClose={() => setShowPromoModal(false)}
+        />
       )}
 
     </div>

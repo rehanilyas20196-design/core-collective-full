@@ -49,6 +49,7 @@ Vercel's `@vercel/node` builder uses **esbuild** to compile TypeScript. esbuild 
 | `SUPABASE_ANON_KEY` | Supabase anon key | |
 | `FRONTEND_URL` | `https://frontend-eight-pink-11.vercel.app` | Used for CORS |
 | `PASSWORD_PEPPER` | `BananaSecurePepper2024!` | For password hashing |
+| `SUPABASE_SERVICE_ROLE_KEY` | (your service_role key) | Required for auto-confirming users on signup. Get it from Supabase Dashboard → Project Settings → API → service_role key |
 
 ---
 
