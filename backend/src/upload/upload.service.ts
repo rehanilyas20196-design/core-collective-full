@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
@@ -31,7 +31,7 @@ export class UploadService {
         contentType: file.mimetype,
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) throw new InternalServerErrorException(uploadError.message);
 
     const { data: { publicUrl } } = this.supabase
       .storage()

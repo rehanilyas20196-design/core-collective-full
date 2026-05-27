@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Mail, Lock, User, Eye, EyeOff, ShoppingBag, Heart, Package, Settings, LogOut, ChevronRight, ArrowLeft, Shield, Clock, Award, MapPin, CreditCard, Bell } from 'lucide-react';
 import { api } from '../lib/api';
+import { supabase } from '../lib/supabase';
 
 const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -69,6 +70,12 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                 const data = await api.auth.login(formData.email, formData.password);
                 const user = data?.user || data?.session?.user;
                 if (user) {
+                    if (data?.session) {
+                        await supabase.auth.setSession({
+                            access_token: data.session.access_token,
+                            refresh_token: data.session.refresh_token,
+                        });
+                    }
                     setAuthMessage('Login successful ✅');
                     setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
                     setUserProfile({

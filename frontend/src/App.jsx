@@ -6,6 +6,7 @@ import CategorySection from './components/CategorySection';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
 import { api } from './lib/api';
+import { supabase } from './lib/supabase';
 import { useCategories, useConfirmedOrdersCount } from './hooks/useProducts';
 
 // Lazy-loaded components for code splitting
@@ -68,7 +69,7 @@ function App() {
   const confirmedOrdersCount = confirmedOrdersCountResult || 0;
 
   useEffect(() => {
-    api.auth.getSession().then((data) => {
+    supabase.auth.getSession().then(({ data }) => {
       const session = data?.session;
       const user = session?.user;
       if (user) {
