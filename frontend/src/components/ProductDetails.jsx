@@ -7,7 +7,7 @@ import { useRelatedProducts, useReviews } from '../hooks/useProducts';
 import flagDE from '../assets/Layout1/Image/flags/DE@2x.png';
 
 
-const ProductDetails = ({ setPage, product, addToCart, toggleFavorite, favorites }) => {
+const ProductDetails = ({ setPage, handleBack, product, addToCart, toggleFavorite, favorites }) => {
    const [selectedThumb, setSelectedThumb] = React.useState(0);
    const [activeTab, setActiveTab] = React.useState('description');
    const [newReview, setNewReview] = React.useState({ rating: 5, comment: '', name: '' });
@@ -18,10 +18,6 @@ const ProductDetails = ({ setPage, product, addToCart, toggleFavorite, favorites
    
    // We can reuse related products for recommended as well or just slice differently
    const recommendedProducts = relatedProducts.slice(0, 4);
-
-   const handleBack = () => {
-      setPage('listing');
-   };
 
    // Product images will be fetched from Supabase
    const thumbnails = product ? [product.image_url] : [];
@@ -82,7 +78,7 @@ const ProductDetails = ({ setPage, product, addToCart, toggleFavorite, favorites
             {/* Gallery Section */}
             <div className="lg:w-[450px] flex-shrink-0">
                <div className="border border-[#DEE2E7] rounded-lg p-4 sm:p-8 mb-4 flex items-center justify-center bg-[#F7F7F7] aspect-square overflow-hidden group">
-                  <img src={thumbnails[selectedThumb]} alt="Product" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                   <img src={thumbnails[selectedThumb]} alt="Product" width="450" height="450" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                </div>
                <div className="flex gap-3 overflow-x-auto no-scrollbar">
                   {thumbnails.map((img, i) => (
@@ -91,7 +87,7 @@ const ProductDetails = ({ setPage, product, addToCart, toggleFavorite, favorites
                         className={`w-[56px] h-[56px] border rounded-md cursor-pointer flex items-center justify-center p-1 bg-[#F7F7F7] hover:border-primary transition-colors ${selectedThumb === i ? 'border-primary shadow-sm' : 'border-[#DEE2E7]'}`}
                         onClick={() => setSelectedThumb(i)}
                      >
-                        <img src={img} alt={`thumb-${i}`} className="max-w-[85%] max-h-[85%] object-contain" />
+                        <img src={img} alt={`Product thumbnail ${i + 1}`} width="56" height="56" loading="lazy" className="max-w-[85%] max-h-[85%] object-contain" />
                      </div>
                   ))}
                </div>
@@ -498,7 +494,7 @@ const ProductDetails = ({ setPage, product, addToCart, toggleFavorite, favorites
                               onClick={() => setPage('details', recProduct)}
                            >
                               <div className="bg-[#F7F7F7] rounded p-2 mb-2 h-32 flex items-center justify-center">
-                                 <img src={recProduct.image_url} alt={recProduct.name} className="max-w-full max-h-full object-contain" />
+                                  <img src={recProduct.image_url} alt={recProduct.name} width="280" height="280" loading="lazy" className="max-w-full max-h-full object-contain" />
                               </div>
                               <h5 className="text-[#1C1C1C] font-medium text-sm line-clamp-2 mb-1">{recProduct.name}</h5>
                               <div className="flex items-center gap-1 mb-2">
@@ -535,7 +531,7 @@ const ProductDetails = ({ setPage, product, addToCart, toggleFavorite, favorites
                         onClick={() => setPage('details', relProduct)}
                      >
                         <div className="bg-[#F7F7F7] rounded p-2 mb-2 aspect-square flex items-center justify-center relative group">
-                           <img src={relProduct.image_url} alt={relProduct.name} className="max-w-full max-h-full object-contain" />
+                            <img src={relProduct.image_url} alt={relProduct.name} width="200" height="200" loading="lazy" className="max-w-full max-h-full object-contain" />
                            <button
                               className={`absolute top-1 right-1 p-1 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors ${favorites.some(f => f.id === relProduct.id) ? 'bg-primary text-white' : 'bg-white/90 text-[#505050]'}`}
                               onClick={(e) => {

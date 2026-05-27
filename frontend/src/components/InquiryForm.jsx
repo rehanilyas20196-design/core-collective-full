@@ -94,17 +94,19 @@ const InquiryForm = () => {
                 className="flex-1 px-4 py-2 border border-shade-border rounded-md outline-none"
                 required
               />
+               <label htmlFor="unit-select" className="sr-only">Unit</label>
                <select
-                 name="unit"
-                 value={formData.unit}
-                 onChange={handleChange}
-                 className="px-4 py-2 border border-shade-border rounded-md bg-white outline-none sm:w-[120px]"
-               >
-                 <option>Pcs</option>
-                 <option>Kgs</option>
-                 <option>Boxes</option>
-                 <option>Sets</option>
-               </select>
+                  id="unit-select"
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleChange}
+                  className="px-4 py-2 border border-shade-border rounded-md bg-white outline-none sm:w-[120px]"
+                >
+                  <option>Pcs</option>
+                  <option>Kgs</option>
+                  <option>Boxes</option>
+                  <option>Sets</option>
+                </select>
             </div>
             <button
               type="submit"

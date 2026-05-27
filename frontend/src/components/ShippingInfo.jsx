@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronRight, Truck, MapPin, Clock, Package, ArrowLeft } from 'lucide-react';
 
-const ShippingInfo = ({ setPage }) => {
+const ShippingInfo = ({ setPage, handleBack }) => {
   const shippingMethods = [
     { name: 'Standard Shipping', time: '5-7 business days', price: 'Free', available: 'Worldwide' },
     { name: 'Express Shipping', time: '2-3 business days', price: 'Rs. 999', available: 'Selected countries' },
@@ -21,11 +21,11 @@ const ShippingInfo = ({ setPage }) => {
     <div className="container py-6">
       {/* Back Button */}
       <button
-        onClick={() => setPage('home')}
+        onClick={handleBack}
         className="flex items-center gap-2 text-[#8B96A5] hover:text-primary transition-colors mb-4"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span className="font-medium">Back to Home</span>
+        <span className="font-medium">Back</span>
       </button>
 
       <div className="flex items-center gap-2 text-[#8B96A5] text-sm mb-6">

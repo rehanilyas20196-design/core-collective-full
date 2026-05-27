@@ -31,7 +31,7 @@ const CategorySection = ({ title, bannerImg, items, bannerBg, setPage, category 
               <span className="text-[#8B96A5] text-xs">From <br /> Rs. {item.price}</span>
             </div>
             <div className="w-[72px] h-[72px] sm:w-[82px] sm:h-[82px] self-end -mr-1 -mb-1 flex-shrink-0">
-              <img src={item.image_url} alt={item.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
+              <img src={item.image_url} alt={item.name} width="82" height="82" loading="lazy" className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
             </div>
           </div>
         ))}

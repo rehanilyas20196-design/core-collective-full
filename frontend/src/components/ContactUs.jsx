@@ -49,7 +49,7 @@ const helpTopicContent = {
   },
 };
 
-const ContactUs = ({ setPage, helpTopic }) => {
+const ContactUs = ({ setPage, handleBack, helpTopic }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -72,11 +72,11 @@ const ContactUs = ({ setPage, helpTopic }) => {
     <div className="container py-6">
       {/* Back Button */}
       <button
-        onClick={() => setPage('home')}
+        onClick={handleBack}
         className="flex items-center gap-2 text-[#8B96A5] hover:text-primary transition-colors mb-4"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span className="font-medium">Back to Home</span>
+        <span className="font-medium">Back</span>
       </button>
 
       <div className="flex items-center gap-2 text-[#8B96A5] text-sm mb-6">

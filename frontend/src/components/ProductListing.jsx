@@ -21,12 +21,18 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
     }));
 
     const seenKeys = new Set();
-    return normalized.filter((product) => {
-      const key = product.name ? product.name.trim().toLowerCase() : String(product.id);
-      if (seenKeys.has(key)) return false;
-      seenKeys.add(key);
-      return true;
-    });
+    return normalized
+      .sort((a, b) => {
+        const aHasImg = a.image_url ? 1 : 0;
+        const bHasImg = b.image_url ? 1 : 0;
+        return bHasImg - aHasImg;
+      })
+      .filter((product) => {
+        const key = product.name ? product.name.trim().toLowerCase() : String(product.id);
+        if (seenKeys.has(key)) return false;
+        seenKeys.add(key);
+        return true;
+      });
   }, [productsData]);
 
   const itemsPerPage = 20;
@@ -287,6 +293,9 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
                         <img
                           src={product.image_url}
                           alt={product.name}
+                          width="300"
+                          height="300"
+                          loading="lazy"
                           className="max-w-full max-h-full object-contain"
                         />
                       ) : (

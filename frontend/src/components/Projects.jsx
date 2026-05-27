@@ -3,7 +3,7 @@ import { Star, Heart, ChevronRight, Users, TrendingUp, Calendar, ArrowLeft } fro
 
 const projectsData = [];
 
-const Projects = ({ setPage }) => {
+const Projects = ({ setPage, handleBack }) => {
   const [filterCategory, setFilterCategory] = useState('All');
   const categories = ['All', 'Sustainability', 'Technology', 'Beauty', 'Sports', 'Education', 'Pets', 'Food'];
 
@@ -15,11 +15,11 @@ const Projects = ({ setPage }) => {
     <div className="container py-6">
       {/* Back Button */}
       <button
-        onClick={() => setPage('home')}
+        onClick={handleBack}
         className="flex items-center gap-2 text-[#8B96A5] hover:text-primary transition-colors mb-4"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span className="font-medium">Back to Home</span>
+        <span className="font-medium">Back</span>
       </button>
 
       {/* Breadcrumbs */}

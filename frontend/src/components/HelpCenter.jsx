@@ -22,7 +22,7 @@ const faqs = [
   { category: 'Security', question: 'How do I reset my password?', answer: 'Click "Forgot Password" on the login page and follow the instructions sent to your email.' },
 ];
 
-const HelpCenter = ({ setPage }) => {
+const HelpCenter = ({ setPage, handleBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFAQ, setExpandedFAQ] = useState(null);
 
@@ -37,11 +37,11 @@ const HelpCenter = ({ setPage }) => {
     <div className="container py-6">
       {/* Back Button */}
       <button
-        onClick={() => setPage('home')}
+        onClick={handleBack}
         className="flex items-center gap-2 text-[#8B96A5] hover:text-primary transition-colors mb-4"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span className="font-medium">Back to Home</span>
+        <span className="font-medium">Back</span>
       </button>
 
       {/* Breadcrumbs */}

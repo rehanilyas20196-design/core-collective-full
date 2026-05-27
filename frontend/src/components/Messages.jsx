@@ -286,7 +286,7 @@ const buildOrderAnswer = (message) => {
 const buildFallbackAnswer = () =>
   'I can help with products, shipping, delivery timing, tracking, returns, refunds, cancellations, warranties, payment issues, website navigation, search, cart, favorites, checkout, account help, and contact support. Try asking a full question like "How do I find products on the website?" or "What is your return policy?"';
 
-const Messages = ({ setPage }) => {
+const Messages = ({ setPage, handleBack }) => {
   const [messages, setMessages] = useState(welcomeMessages);
   const [inputValue, setInputValue] = useState('');
   const [products, setProducts] = useState([]);
@@ -372,11 +372,11 @@ const Messages = ({ setPage }) => {
   return (
     <div className="container py-6">
       <button
-        onClick={() => setPage('home')}
+        onClick={handleBack}
         className="flex items-center gap-2 text-[#8B96A5] hover:text-primary transition-colors mb-4"
       >
         <ArrowLeft className="w-5 h-5" />
-        <span className="font-medium">Back to Home</span>
+        <span className="font-medium">Back</span>
       </button>
 
       <div className="bg-white border border-shade-border rounded-2xl shadow-sm overflow-hidden">

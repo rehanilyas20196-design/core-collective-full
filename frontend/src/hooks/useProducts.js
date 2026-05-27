@@ -24,6 +24,11 @@ export const useCategories = () => {
     uniqueCategories.forEach(cat => {
       const productsInCat = allProducts
         .filter(p => p.category === cat)
+        .sort((a, b) => {
+          const aHas = a.image_url || a.image ? 1 : 0;
+          const bHas = b.image_url || b.image ? 1 : 0;
+          return bHas - aHas;
+        })
         .slice(0, 8);
       categories[cat] = productsInCat;
     });

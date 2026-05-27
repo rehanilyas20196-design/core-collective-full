@@ -1,35 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Deals from './components/Deals';
 import CategorySection from './components/CategorySection';
-import InquiryForm from './components/InquiryForm';
-import RecommendedItems from './components/RecommendedItems';
-import Services from './components/Services';
-import RegionSuppliers from './components/RegionSuppliers';
 import Newsletter from './components/Newsletter';
 import Footer from './components/Footer';
-import ProductListing from './components/ProductListing';
-import ProductDetails from './components/ProductDetails';
-import HotOffers from './components/HotOffers';
-import GiftBoxes from './components/GiftBoxes';
-import Projects from './components/Projects';
-import MenuItems from './components/MenuItems';
-import HelpCenter from './components/HelpCenter';
-import ContactUs from './components/ContactUs';
-import ShippingInfo from './components/ShippingInfo';
-import ReturnsInfo from './components/ReturnsInfo';
-import FAQ from './components/FAQ';
-import Cart from './components/Cart';
-import Profile from './components/Profile';
-import Chatbot from './components/Chatbot';
-import Orders from './components/Orders';
-import Checkout from './components/Checkout';
-import AdminPanel from './components/AdminPanel';
-import SellerProfile from './components/SellerProfile';
-import Notifications from './components/Notifications';
 import { api } from './lib/api';
 import { useCategories, useConfirmedOrdersCount } from './hooks/useProducts';
+
+// Lazy-loaded components for code splitting
+const InquiryForm = lazy(() => import('./components/InquiryForm'));
+const RecommendedItems = lazy(() => import('./components/RecommendedItems'));
+const Services = lazy(() => import('./components/Services'));
+const RegionSuppliers = lazy(() => import('./components/RegionSuppliers'));
+const ProductListing = lazy(() => import('./components/ProductListing'));
+const ProductDetails = lazy(() => import('./components/ProductDetails'));
+const HotOffers = lazy(() => import('./components/HotOffers'));
+const GiftBoxes = lazy(() => import('./components/GiftBoxes'));
+const Projects = lazy(() => import('./components/Projects'));
+const MenuItems = lazy(() => import('./components/MenuItems'));
+const HelpCenter = lazy(() => import('./components/HelpCenter'));
+const ContactUs = lazy(() => import('./components/ContactUs'));
+const ShippingInfo = lazy(() => import('./components/ShippingInfo'));
+const ReturnsInfo = lazy(() => import('./components/ReturnsInfo'));
+const FAQ = lazy(() => import('./components/FAQ'));
+const Cart = lazy(() => import('./components/Cart'));
+const Profile = lazy(() => import('./components/Profile'));
+const Chatbot = lazy(() => import('./components/Chatbot'));
+const Orders = lazy(() => import('./components/Orders'));
+const Checkout = lazy(() => import('./components/Checkout'));
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
+const SellerProfile = lazy(() => import('./components/SellerProfile'));
+const Notifications = lazy(() => import('./components/Notifications'));
+
+const SectionFallback = () => <div className="py-8" />;
 
 
 // Category Banner Images
@@ -187,45 +191,45 @@ function App() {
   const renderContent = () => {
     switch (currentPage) {
       case 'listing':
-        return <ProductListing setPage={handleSetPage} handleBack={handleBack} category={selectedCategory} query={searchQuery} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} />;
+        return <Suspense fallback={<SectionFallback />}><ProductListing setPage={handleSetPage} handleBack={handleBack} category={selectedCategory} query={searchQuery} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} /></Suspense>;
       case 'details':
-        return <ProductDetails setPage={handleSetPage} handleBack={handleBack} product={selectedProduct} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} />;
+        return <Suspense fallback={<SectionFallback />}><ProductDetails setPage={handleSetPage} handleBack={handleBack} product={selectedProduct} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} /></Suspense>;
       case 'admin':
-        return <AdminPanel setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><AdminPanel setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'seller-profile':
-        return <SellerProfile setPage={handleSetPage} handleBack={handleBack} sellerData={navigationData} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} />;
+        return <Suspense fallback={<SectionFallback />}><SellerProfile setPage={handleSetPage} handleBack={handleBack} sellerData={navigationData} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} /></Suspense>;
       case 'cart':
-        return <Cart setPage={handleSetPage} handleBack={handleBack} cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} />;
+        return <Suspense fallback={<SectionFallback />}><Cart setPage={handleSetPage} handleBack={handleBack} cartItems={cartItems} setCartItems={setCartItems} removeFromCart={removeFromCart} /></Suspense>;
       case 'favorites':
-        return <ProductListing setPage={handleSetPage} handleBack={handleBack} category="My Favorites" productsOverride={favorites} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} />;
+        return <Suspense fallback={<SectionFallback />}><ProductListing setPage={handleSetPage} handleBack={handleBack} category="My Favorites" productsOverride={favorites} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} /></Suspense>;
       case 'checkout':
-        return <Checkout setPage={handleSetPage} handleBack={handleBack} cartItems={navigationData?.id ? [navigationData] : cartItems} total={navigationData?.total || cartItems.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0)} />;
+        return <Suspense fallback={<SectionFallback />}><Checkout setPage={handleSetPage} handleBack={handleBack} cartItems={navigationData?.id ? [navigationData] : cartItems} total={navigationData?.total || cartItems.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0)} /></Suspense>;
       case 'profile':
-        return <Profile setPage={handleSetPage} handleBack={handleBack} setIsAdmin={setIsAdmin} userProfile={userProfile} setUserProfile={setUserProfile} />;
+        return <Suspense fallback={<SectionFallback />}><Profile setPage={handleSetPage} handleBack={handleBack} setIsAdmin={setIsAdmin} userProfile={userProfile} setUserProfile={setUserProfile} /></Suspense>;
       case 'message':
-        return <Chatbot setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><Chatbot setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'orders':
-        return <Orders setPage={handleSetPage} handleBack={handleBack} userProfile={userProfile} />;
+        return <Suspense fallback={<SectionFallback />}><Orders setPage={handleSetPage} handleBack={handleBack} userProfile={userProfile} /></Suspense>;
       case 'notifications':
-        return <Notifications setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><Notifications setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'hot-offers':
-        return <HotOffers setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><HotOffers setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'gift-boxes':
-        return <GiftBoxes setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><GiftBoxes setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'projects':
-        return <Projects setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><Projects setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'menu-items':
-        return <MenuItems setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><MenuItems setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'help-center':
-        return <HelpCenter setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><HelpCenter setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'contact-us':
-        return <ContactUs setPage={handleSetPage} handleBack={handleBack} helpTopic={navigationData?.helpTopic || null} />;
+        return <Suspense fallback={<SectionFallback />}><ContactUs setPage={handleSetPage} handleBack={handleBack} helpTopic={navigationData?.helpTopic || null} /></Suspense>;
       case 'shipping-info':
-        return <ShippingInfo setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><ShippingInfo setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'returns-info':
-        return <ReturnsInfo setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><ReturnsInfo setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
       case 'faq':
-        return <FAQ setPage={handleSetPage} handleBack={handleBack} />;
+        return <Suspense fallback={<SectionFallback />}><FAQ setPage={handleSetPage} handleBack={handleBack} /></Suspense>;
 
       default:
         return (
@@ -257,10 +261,10 @@ function App() {
               />
             ))}
 
-            <InquiryForm />
-            <RecommendedItems setPage={handleSetPage} />
-            <Services />
-            <RegionSuppliers />
+            <Suspense fallback={<SectionFallback />}><InquiryForm /></Suspense>
+            <Suspense fallback={<SectionFallback />}><RecommendedItems setPage={handleSetPage} /></Suspense>
+            <Suspense fallback={<SectionFallback />}><Services /></Suspense>
+            <Suspense fallback={<SectionFallback />}><RegionSuppliers /></Suspense>
           </div>
         );
     }
@@ -278,6 +282,7 @@ function App() {
             <button
               onClick={() => setShowLogo(!showLogo)}
               className="absolute left-1/2 -translate-x-1/2 -bottom-5 z-30 group"
+              aria-label={showLogo ? 'Hide logo section' : 'Show logo section'}
             >
               <div className="relative">
                 {/* Outer ripple ring */}
@@ -341,6 +346,9 @@ function App() {
                     <img
                       src="https://izqxsfuyibbzwdxdcmev.supabase.co/storage/v1/object/public/Background/Logo/Core%20Collective%20(1).png"
                       alt="Core Collective"
+                      width="500"
+                      height="500"
+                      fetchpriority="high"
                       className="h-[100px] sm:h-[140px] lg:h-[160px] w-auto object-contain"
                     />
                   </div>

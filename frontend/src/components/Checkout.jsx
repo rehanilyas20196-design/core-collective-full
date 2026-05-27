@@ -129,8 +129,9 @@ const Checkout = ({ setPage, handleBack, cartItems, total }) => {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <label className="text-sm font-medium text-[#1C1C1C]">Province</label>
+                                            <label htmlFor="province" className="text-sm font-medium text-[#1C1C1C]">Province</label>
                                             <select
+                                                id="province"
                                                 required name="province" value={formData.province} onChange={handleInputChange}
                                                 className="w-full px-4 py-2.5 border border-[#DEE2E7] rounded-md outline-none focus:border-primary transition-colors"
                                             >
@@ -286,7 +287,7 @@ const Checkout = ({ setPage, handleBack, cartItems, total }) => {
                                                         </label>
                                                     ) : (
                                                         <div className="relative w-full h-64 rounded-xl overflow-hidden border border-[#DEE2E7] group">
-                                                            <img src={screenshotPreview} alt="Screenshot" className="w-full h-full object-cover" />
+                                                            <img src={screenshotPreview} alt="Payment screenshot preview" className="w-full h-full object-cover" />
                                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                                                                 <label className="bg-white text-primary px-4 py-2 rounded-lg font-bold cursor-pointer hover:bg-gray-100 flex items-center gap-2">
                                                                     <Upload size={18} />
@@ -336,7 +337,7 @@ const Checkout = ({ setPage, handleBack, cartItems, total }) => {
                             <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
                                 {cartItems.map((item, idx) => (
                                     <div key={idx} className="flex gap-3">
-                                        <img src={item.image_url || item.image} alt={item.name || item.title} className="w-12 h-12 rounded border p-1 object-contain" />
+                                        <img src={item.image_url || item.image} alt={item.name || item.title} width="48" height="48" loading="lazy" className="w-12 h-12 rounded border p-1 object-contain" />
                                         <div className="flex-1">
                                             <p className="text-sm font-medium line-clamp-1">{item.name || item.title}</p>
                                             <p className="text-xs text-[#8B96A5]">Qty: {item.qty || 1}</p>

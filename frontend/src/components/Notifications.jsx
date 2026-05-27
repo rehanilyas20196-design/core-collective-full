@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Package, CheckCircle2, XCircle, Clock, ShoppingBag } from 'lucide-react';
+import { Bell, Package, CheckCircle2, XCircle, Clock, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { api } from '../lib/api';
 
-const Notifications = ({ setPage }) => {
+const Notifications = ({ setPage, handleBack }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -55,6 +55,13 @@ const Notifications = ({ setPage }) => {
 
     return (
         <div className="container py-8 max-w-4xl">
+            <button
+                onClick={handleBack}
+                className="flex items-center gap-2 text-[#8B96A5] hover:text-primary transition-colors mb-4"
+            >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="font-medium">Back</span>
+            </button>
             <div className="bg-white border border-[#DEE2E7] rounded-xl shadow-lg overflow-hidden">
                 <div className="p-6 border-b border-[#DEE2E7] bg-gray-50 flex items-center justify-between">
                     <div className="flex items-center gap-3">

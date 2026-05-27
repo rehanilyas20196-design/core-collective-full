@@ -72,7 +72,7 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                             <div key={item.id} className={`p-4 lg:p-6 flex flex-col sm:flex-row gap-4 lg:gap-6 ${index !== cartItems.length - 1 ? 'border-b border-[#DEE2E7]' : ''}`}>
                                 {/* Product Image */}
                                 <div className="w-[80px] h-[80px] lg:w-[100px] lg:h-[100px] border border-[#DEE2E7] rounded-lg p-3 flex items-center justify-center bg-[#F7F7F7] flex-shrink-0 group overflow-hidden">
-                                    <img src={item.image || item.image_url} alt={item.title || item.name} className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300" />
+                                    <img src={item.image || item.image_url} alt={item.title || item.name} width="100" height="100" loading="lazy" className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300" />
                                 </div>
 
                                 {/* Info */}
@@ -139,7 +139,7 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                             <div className="space-y-3">
                                 {savedForLater.map((item) => (
                                     <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 border border-[#DEE2E7] rounded-lg">
-                                        <img src={item.image || item.image_url} alt={item.title || item.name} className="w-16 h-16 object-contain rounded" />
+                                        <img src={item.image || item.image_url} alt={item.title || item.name} width="64" height="64" loading="lazy" className="w-16 h-16 object-contain rounded" />
                                         <div className="flex-1">
                                             <h4 className="font-semibold text-sm">{item.title || item.name}</h4>
                                             <p className="text-[#8B96A5] text-sm">Seller: {item.seller}</p>

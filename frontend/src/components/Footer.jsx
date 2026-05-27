@@ -15,8 +15,8 @@ const Footer = () => {
               Best information about the company gies here but now lorem ipsum is simply dummy text of the printing and typesetting industry.
             </p>
             <div className="flex gap-3">
-              {[Facebook, Twitter, Linkedin, Instagram, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] flex items-center justify-center text-white hover:bg-primary transition-all">
+              {[{ Icon: Facebook, name: 'Facebook' }, { Icon: Twitter, name: 'Twitter' }, { Icon: Linkedin, name: 'LinkedIn' }, { Icon: Instagram, name: 'Instagram' }, { Icon: Youtube, name: 'YouTube' }].map(({ Icon, name }, i) => (
+                <a key={i} href="#" className="w-8 h-8 rounded-full bg-[#BDC4CD] flex items-center justify-center text-white hover:bg-primary transition-all" aria-label={`Follow us on ${name}`}>
                   <Icon className="w-4 h-4 fill-current" />
                 </a>
               ))}
@@ -63,14 +63,14 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <h4 className="font-bold text-[#1C1C1C] mb-4">Get app</h4>
             <div className="flex flex-col gap-2 max-w-[160px]">
-              <a href="#" className="bg-[#1C1C1C] text-white flex items-center gap-2 px-3 py-2 rounded-lg hover:opacity-90 transition-opacity w-full">
+              <a href="#" className="bg-[#1C1C1C] text-white flex items-center gap-2 px-3 py-2 rounded-lg hover:opacity-90 transition-opacity w-full" aria-label="Download our app from the App Store">
                 <Apple size={20} fill="white" />
                 <div className="flex flex-col">
                   <span className="text-[8px] uppercase leading-none">Download on the</span>
                   <span className="text-[12px] font-bold leading-none">App Store</span>
                 </div>
               </a>
-              <a href="#" className="bg-[#1C1C1C] text-white flex items-center gap-2 px-3 py-2 rounded-lg hover:opacity-90 transition-opacity w-full">
+              <a href="#" className="bg-[#1C1C1C] text-white flex items-center gap-2 px-3 py-2 rounded-lg hover:opacity-90 transition-opacity w-full" aria-label="Get our app on Google Play">
                 <Play size={20} fill="white" />
                 <div className="flex flex-col">
                   <span className="text-[8px] uppercase leading-none">GET IT ON</span>

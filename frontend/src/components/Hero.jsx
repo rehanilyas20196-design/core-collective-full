@@ -89,18 +89,22 @@ const Hero = ({ setPage }) => {
             <button
               onClick={() => setPage('listing', { category: categories[currentSlide] || 'Electronics' })}
               className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-primary-dark transition-all shadow-lg active:scale-95 transform"
+              aria-label={`Learn more about ${categories[currentSlide] || 'Electronics'}`}
             >
               Learn more
             </button>
           </div>
 
           {/* Carousel Dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3" role="tablist" aria-label="Slide navigation">
             {categories.slice(0, bannerImages.length).map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentSlide(i)}
-                className={`w-2 h-2 rounded-full transition-all ${currentSlide === i ? 'bg-primary w-6' : 'bg-gray-300'}`}
+                role="tab"
+                aria-selected={currentSlide === i}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`w-3 h-3 min-w-[12px] min-h-[12px] rounded-full transition-all ${currentSlide === i ? 'bg-primary w-7' : 'bg-gray-300 hover:bg-gray-400'}`}
               ></button>
             ))}
           </div>
@@ -125,6 +129,7 @@ const Hero = ({ setPage }) => {
                 window.dispatchEvent(new CustomEvent('setAuthMode', { detail: 'signup' }));
               }}
               className="w-full bg-primary hover:bg-primary-dark text-white py-2 rounded-md mb-2 text-sm font-bold transition-all shadow-md active:scale-95"
+              aria-label="Create a new account"
             >Join now</button>
             <button
               onClick={() => {
@@ -132,14 +137,19 @@ const Hero = ({ setPage }) => {
                 window.dispatchEvent(new CustomEvent('setAuthMode', { detail: 'login' }));
               }}
               className="w-full bg-white text-primary py-2 rounded-md text-sm font-bold border border-primary/20 hover:bg-primary/5 transition-all shadow-sm active:scale-95"
+              aria-label="Log in to your account"
             >Log in</button>
           </div>
 
           {/* Promo 1 */}
           <div
             onClick={() => setPage('promo-modal')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setPage('promo-modal'); }}
             className="bg-orange p-4 rounded-lg flex-1 text-white bg-cover bg-no-repeat bg-center cursor-pointer hover:opacity-90 transition-all shadow-md min-h-[120px] flex items-end group"
             style={{ backgroundImage: `url("${promo1}")` }}
+            aria-label="Get Rs. 1000 off with a new supplier"
           >
             <p className="text-sm font-bold leading-tight w-2/3 group-hover:translate-x-1 transition-transform">Get Rs. 1000 off with a new supplier</p>
           </div>
@@ -147,8 +157,12 @@ const Hero = ({ setPage }) => {
           {/* Promo 2 */}
           <div
             onClick={() => setShowQuoteForm(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setShowQuoteForm(true); }}
             className="bg-teal p-4 rounded-lg flex-1 text-white bg-cover bg-no-repeat bg-center cursor-pointer hover:opacity-90 transition-all shadow-md min-h-[120px] flex items-end group"
             style={{ backgroundImage: `url("${promo2}")` }}
+            aria-label="Send quotes with supplier preferences"
           >
             <p className="text-sm font-bold leading-tight w-2/3 group-hover:translate-x-1 transition-transform">Send quotes with supplier preferences</p>
           </div>

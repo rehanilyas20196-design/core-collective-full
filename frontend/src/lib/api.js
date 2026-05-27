@@ -2,10 +2,28 @@ const API_BASE = import.meta.env.VITE_BACKEND_URL
   ? `${import.meta.env.VITE_BACKEND_URL}/api`
   : '/api';
 
+function sanitizeUrls(obj) {
+  if (typeof obj === 'string') {
+    return obj.replace(/^hthttps:\/\//i, 'https://');
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeUrls);
+  }
+  if (obj && typeof obj === 'object') {
+    const result = {};
+    for (const key of Object.keys(obj)) {
+      result[key] = sanitizeUrls(obj[key]);
+    }
+    return result;
+  }
+  return obj;
+}
+
 async function request(path, options = {}) {
   const url = `${API_BASE}${path}`;
   const config = {
     headers: { 'Content-Type': 'application/json', ...options.headers },
+    credentials: 'include',
     ...options,
   };
 
@@ -18,7 +36,7 @@ async function request(path, options = {}) {
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(err.message || `Request failed: ${res.status}`);
   }
-  return res.json();
+  return sanitizeUrls(await res.json());
 }
 
 // Auth

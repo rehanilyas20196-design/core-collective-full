@@ -77,8 +77,10 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
           </div>
         </div>
 
-        <div className="w-full lg:flex-1 lg:max-w-2xl flex flex-col sm:flex-row border-2 border-primary rounded-lg">
+        <div className="w-full lg:flex-1 lg:max-w-2xl flex flex-col sm:flex-row border-2 border-primary rounded-lg" role="search">
+          <label htmlFor="header-search" className="sr-only">Search products</label>
           <input
+            id="header-search"
             type="text"
             placeholder="Search products..."
             value={searchText}
@@ -90,6 +92,7 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
               }
             }}
             className="flex-1 px-4 py-3 sm:py-2 outline-none min-w-0 rounded-t-lg sm:rounded-l-lg sm:rounded-tr-none"
+            aria-label="Search products"
           />
           <div className="relative" ref={dropdownRef}>
             <div
@@ -119,34 +122,35 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
           <button
             className="bg-primary hover:bg-primary-dark text-white px-6 sm:px-8 py-3 sm:py-2 font-medium transition-colors w-full sm:w-auto rounded-b-lg sm:rounded-r-lg sm:rounded-bl-none"
             onClick={() => setPage('listing', { category: null, query: searchText.trim() })}
+            aria-label="Search products"
           >
             Search
           </button>
         </div>
 
         <div className="grid grid-cols-4 sm:flex items-start sm:items-center gap-4 sm:gap-6 w-full lg:w-auto">
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors min-w-0" onClick={() => setPage('profile')}>
+          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors min-w-0" onClick={() => setPage('profile')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('profile'); }} aria-label={userProfile ? `Profile: ${userProfile.name}` : 'Profile'}>
             <User className="w-5 h-5 mb-1" />
             <span className="text-[11px] sm:text-xs text-center truncate max-w-full">{userProfile ? (userProfile.name || 'Profile') : 'Profile'}</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors min-w-0" onClick={() => setPage('message')}>
+          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors min-w-0" onClick={() => setPage('message')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('message'); }} aria-label="Messages">
             <MessageSquare className="w-5 h-5 mb-1" />
             <span className="text-[11px] sm:text-xs text-center">Message</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors relative min-w-0" onClick={() => setPage('favorites')}>
+          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors relative min-w-0" onClick={() => setPage('favorites')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('favorites'); }} aria-label={`Favorites${favoritesCount > 0 ? `, ${favoritesCount} items` : ''}`}>
             <Heart className="w-5 h-5 mb-1" />
             <span className="text-[11px] sm:text-xs text-center">Favorites</span>
             {favoritesCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm" aria-hidden="true">
                 {favoritesCount}
               </span>
             )}
           </div>
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors relative min-w-0" onClick={() => setPage('cart')}>
+          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors relative min-w-0" onClick={() => setPage('cart')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('cart'); }} aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}>
             <ShoppingCart className="w-5 h-5 mb-1" />
             <span className="text-[11px] sm:text-xs text-center">My cart</span>
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#00B517] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
+              <span className="absolute -top-1 -right-1 bg-[#00B517] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm" aria-hidden="true">
                 {cartCount}
               </span>
             )}
@@ -158,14 +162,14 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
       <div className="border-t border-shade-border bg-white lg:overflow-visible no-scrollbar">
         <div className="container py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between whitespace-nowrap gap-3 sm:gap-4">
           <nav className="flex flex-wrap items-center gap-4 sm:gap-6 font-medium text-dark text-sm sm:text-base w-full pb-1 sm:pb-0">
-            <div className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors" onClick={() => setPage('listing')}>
+            <div className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors" onClick={() => setPage('listing')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('listing'); }} aria-label="All categories">
               <Menu className="w-5 h-5" />
               <span>All Categories</span>
             </div>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('hot-offers'); }}>Hot Offers</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('gift-boxes'); }}>Gift Boxes</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('projects'); }}>Projects</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('menu-items'); }}>Menu Items</a>
+            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('hot-offers'); }} aria-label="View hot offers">Hot Offers</a>
+            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('gift-boxes'); }} aria-label="View gift boxes">Gift Boxes</a>
+            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('projects'); }} aria-label="View projects">Projects</a>
+            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('menu-items'); }} aria-label="View menu items">Menu Items</a>
             {isAdmin && (
               <span
                 className="bg-primary/10 text-primary px-3 py-1 rounded-md font-bold cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 flex items-center"
@@ -215,10 +219,14 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
             <div
               className="relative cursor-pointer hover:text-primary transition-colors group"
               onClick={() => setPage('notifications')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') setPage('notifications'); }}
+              aria-label={`Notifications${confirmedOrdersCount > 0 ? `, ${confirmedOrdersCount} unread` : ''}`}
             >
               <Bell className="w-5 h-5 text-secondary group-hover:text-primary transition-colors" />
               {confirmedOrdersCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#FA3434] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm border border-white">
+                <span className="absolute -top-1.5 -right-1.5 bg-[#FA3434] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm border border-white" aria-hidden="true">
                   {confirmedOrdersCount}
                 </span>
               )}
