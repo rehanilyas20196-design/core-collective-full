@@ -11,6 +11,10 @@ import { SupplierInquiriesModule } from './supplier-inquiries/supplier-inquiries
 import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
 import { CommonModule } from './common/common.module';
+import { FavoritesModule } from './favorites/favorites.module';
+import { CartModule } from './cart/cart.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { DiscountMessagesModule } from './discount-messages/discount-messages.module';
 
 @Module({
   imports: [
@@ -29,6 +33,10 @@ import { CommonModule } from './common/common.module';
     AuthModule,
     UploadModule,
     CommonModule,
+    FavoritesModule,
+    CartModule,
+    NotificationsModule,
+    DiscountMessagesModule,
   ],
 })
 export class AppModule {}

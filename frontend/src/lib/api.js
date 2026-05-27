@@ -19,10 +19,23 @@ function sanitizeUrls(obj) {
   return obj;
 }
 
+async function getToken() {
+  const { supabase } = await import('./supabase');
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || '';
+}
+
 async function request(path, options = {}) {
   const url = `${API_BASE}${path}`;
+  const token = await getToken();
+  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config = {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
+    headers,
     credentials: 'include',
     ...options,
   };
@@ -39,7 +52,6 @@ async function request(path, options = {}) {
   return sanitizeUrls(await res.json());
 }
 
-// Auth
 export const api = {
   auth: {
     signup: (email, password, fullName, joiningDate) =>
@@ -54,7 +66,6 @@ export const api = {
       request('/auth/google', { method: 'POST' }),
   },
 
-  // Products
   products: {
     getAll: (search) =>
       request(`/products${search ? `?search=${encodeURIComponent(search)}` : ''}`),
@@ -70,56 +81,85 @@ export const api = {
       request(`/products/minimal?limit=${limit}`),
   },
 
-  // Orders
   orders: {
-    getAll: () =>
-      request('/orders'),
-    getConfirmedCount: () =>
-      request('/orders/confirmed-count'),
-    create: (orderData) =>
-      request('/orders', { method: 'POST', body: orderData }),
-    updateStatus: (id, status) =>
-      request(`/orders/${id}/status`, { method: 'PATCH', body: { status } }),
-    delete: (id) =>
-      request(`/orders/${id}`, { method: 'DELETE' }),
+    getAll: () => request('/orders'),
+    getConfirmedCount: () => request('/orders/confirmed-count'),
+    create: (orderData) => request('/orders', { method: 'POST', body: orderData }),
+    updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PATCH', body: { status } }),
+    delete: (id) => request(`/orders/${id}`, { method: 'DELETE' }),
   },
 
-  // Reviews
   reviews: {
-    getByProduct: (productId) =>
-      request(`/reviews/${productId}`),
-    create: (reviewData) =>
-      request('/reviews', { method: 'POST', body: reviewData }),
+    getByProduct: (productId) => request(`/reviews/${productId}`),
+    create: (reviewData) => request('/reviews', { method: 'POST', body: reviewData }),
   },
 
-  // Deals
   deals: {
-    getAll: () =>
-      request('/deals'),
+    getAll: () => request('/deals'),
   },
 
-  // Recommended Items
   recommendedItems: {
-    getAll: () =>
-      request('/recommended-items'),
+    getAll: () => request('/recommended-items'),
   },
 
-  // Supplier Inquiries
   supplierInquiries: {
-    create: (data) =>
-      request('/supplier-inquiries', { method: 'POST', body: data }),
+    getAll: () => request('/supplier-inquiries'),
+    create: (data) => request('/supplier-inquiries', { method: 'POST', body: data }),
+    updateStatus: (id, status, adminNotes, supplierRef) =>
+      request(`/supplier-inquiries/${id}/status`, { method: 'PATCH', body: { status, admin_notes: adminNotes, supplier_ref: supplierRef } }),
+    delete: (id) => request(`/supplier-inquiries/${id}`, { method: 'DELETE' }),
   },
 
-  // Upload
   upload: {
     paymentScreenshot: async (file) => {
       const formData = new FormData();
       formData.append('file', file);
+      const token = await getToken();
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       return request('/upload/payment-screenshot', {
         method: 'POST',
         body: formData,
-        headers: {},
+        headers,
       });
     },
+  },
+
+  favorites: {
+    getAll: () => request('/favorites'),
+    toggle: (productId, productData) =>
+      request('/favorites/toggle', { method: 'POST', body: { product_id: productId, product_data: productData } }),
+    add: (productId, productData) =>
+      request('/favorites/add', { method: 'POST', body: { product_id: productId, product_data: productData } }),
+    remove: (productId) => request(`/favorites/${productId}`, { method: 'DELETE' }),
+  },
+
+  cart: {
+    getAll: () => request('/cart'),
+    add: (productId, qty = 1, productData) =>
+      request('/cart/add', { method: 'POST', body: { product_id: productId, qty, product_data: productData } }),
+    updateQty: (productId, qty) =>
+      request('/cart/update-qty', { method: 'PATCH', body: { product_id: productId, qty } }),
+    remove: (productId) => request(`/cart/${productId}`, { method: 'DELETE' }),
+    clear: () => request('/cart', { method: 'DELETE' }),
+  },
+
+  notifications: {
+    getAll: () => request('/notifications'),
+    getUnreadCount: () => request('/notifications/unread-count'),
+    create: (type, title, message, data) =>
+      request('/notifications', { method: 'POST', body: { type, title, message, data } }),
+    markAsRead: (id) => request(`/notifications/${id}/read`, { method: 'PATCH' }),
+    markAllAsRead: () => request('/notifications/read-all', { method: 'PATCH' }),
+    delete: (id) => request(`/notifications/${id}`, { method: 'DELETE' }),
+  },
+
+  discountMessages: {
+    getAll: () => request('/discount-messages'),
+    create: (userEmail, userName, message) =>
+      request('/discount-messages', { method: 'POST', body: { user_email: userEmail, user_name: userName, message } }),
+    updateStatus: (id, status, adminReply) =>
+      request(`/discount-messages/${id}/status`, { method: 'PATCH', body: { status, admin_reply: adminReply } }),
+    delete: (id) => request(`/discount-messages/${id}`, { method: 'DELETE' }),
   },
 };

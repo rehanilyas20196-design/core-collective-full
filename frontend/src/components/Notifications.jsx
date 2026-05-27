@@ -1,55 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Package, CheckCircle2, XCircle, Clock, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Bell, Package, CheckCircle2, XCircle, Clock, ShoppingBag, ArrowLeft, CheckCheck, Trash2 } from 'lucide-react';
 import { api } from '../lib/api';
 
-const Notifications = ({ setPage, handleBack }) => {
+const Notifications = ({ setPage, handleBack, userProfile }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchNotifications();
-    }, []);
+        if (userProfile?.id) {
+            fetchNotifications();
+        } else {
+            setLoading(false);
+            setNotifications([]);
+        }
+    }, [userProfile?.id]);
 
     const fetchNotifications = async () => {
         try {
             setLoading(true);
-            const data = await api.orders.getAll();
-
-            // Map orders to notification messages
-            const msgs = data.map(order => {
-                let message = '';
-                let type = '';
-                let icon = null;
-
-                if (order.status === 'confirmed') {
-                    message = `Your order #${order.id} is confirmed and now goes to shipping!`;
-                    type = 'success';
-                    icon = <CheckCircle2 className="text-green-500" />;
-                } else if (order.status === 'rejected') {
-                    message = `Your order #${order.id} has been rejected. Please check your payment details or contact support.`;
-                    type = 'error';
-                    icon = <XCircle className="text-red-500" />;
-                } else {
-                    message = `Your order #${order.id} is pending approval. Estimated review time: 5 hours.`;
-                    type = 'pending';
-                    icon = <Clock className="text-orange-500" />;
-                }
-
-                return {
-                    id: order.id,
-                    message,
-                    time: new Date(order.created_at).toLocaleString(),
-                    type,
-                    icon,
-                    orderId: order.id
-                };
-            });
-
-            setNotifications(msgs);
+            const data = await api.notifications.getAll();
+            setNotifications(data || []);
         } catch (error) {
             console.error('Error fetching notifications:', error);
+            setNotifications([]);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const markAsRead = async (id) => {
+        try {
+            await api.notifications.markAsRead(id);
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    };
+
+    const markAllAsRead = async () => {
+        try {
+            await api.notifications.markAllAsRead();
+            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+        } catch (error) {
+            console.error('Error marking all as read:', error);
+        }
+    };
+
+    const deleteNotification = async (id) => {
+        try {
+            await api.notifications.delete(id);
+            setNotifications(prev => prev.filter(n => n.id !== id));
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
+    };
+
+    const getIcon = (type) => {
+        switch (type) {
+            case 'success': return <CheckCircle2 className="text-green-500" size={24} />;
+            case 'error': return <XCircle className="text-red-500" size={24} />;
+            case 'pending': return <Clock className="text-orange-500" size={24} />;
+            case 'order': return <Package className="text-blue-500" size={24} />;
+            default: return <Bell className="text-primary" size={24} />;
         }
     };
 
@@ -70,38 +82,74 @@ const Notifications = ({ setPage, handleBack }) => {
                         </div>
                         <h1 className="text-2xl font-bold text-dark">Notifications</h1>
                     </div>
-                    <button
-                        onClick={fetchNotifications}
-                        className="text-primary font-bold hover:underline text-sm"
-                    >
-                        Refresh
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={markAllAsRead}
+                            className="text-primary font-bold hover:underline text-sm flex items-center gap-1"
+                        >
+                            <CheckCheck size={16} />
+                            Mark all read
+                        </button>
+                        <button
+                            onClick={fetchNotifications}
+                            className="text-primary font-bold hover:underline text-sm"
+                        >
+                            Refresh
+                        </button>
+                    </div>
                 </div>
 
                 <div className="divide-y divide-[#DEE2E7]">
                     {loading ? (
                         <div className="p-12 text-center text-secondary">Loading notifications...</div>
+                    ) : !userProfile ? (
+                        <div className="p-12 text-center">
+                            <Bell className="w-16 h-16 text-gray-200 mx-auto mb-4" />
+                            <h2 className="text-xl font-bold text-dark mb-2">Sign in to see notifications</h2>
+                            <p className="text-secondary">Please log in to view your notifications.</p>
+                        </div>
                     ) : notifications.length === 0 ? (
                         <div className="p-12 text-center">
                             <ShoppingBag className="w-16 h-16 text-gray-200 mx-auto mb-4" />
                             <h2 className="text-xl font-bold text-dark mb-2">No notifications</h2>
-                            <p className="text-secondary">You haven't placed any orders yet.</p>
+                            <p className="text-secondary">You're all caught up!</p>
                         </div>
                     ) : (
                         notifications.map((notif) => (
                             <div
                                 key={notif.id}
-                                className={`p-6 hover:bg-gray-50 transition-colors flex gap-4 cursor-pointer`}
-                                onClick={() => setPage('orders')}
+                                className={`p-6 hover:bg-gray-50 transition-colors flex gap-4 ${!notif.is_read ? 'bg-primary/5' : ''}`}
                             >
-                                <div className="mt-1">{notif.icon}</div>
+                                <div className="mt-1">{getIcon(notif.type)}</div>
                                 <div className="flex-1">
+                                    {notif.title && (
+                                        <p className="font-bold text-dark text-sm">{notif.title}</p>
+                                    )}
                                     <p className="text-dark font-medium leading-relaxed mb-1">{notif.message}</p>
                                     <div className="flex items-center gap-3 text-xs text-secondary">
-                                        <span>{notif.time}</span>
-                                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                                        <span className="font-bold text-primary uppercase tracking-wider">{notif.type}</span>
+                                        <span>{new Date(notif.created_at).toLocaleString()}</span>
+                                        {!notif.is_read && (
+                                            <span className="w-2 h-2 bg-primary rounded-full"></span>
+                                        )}
                                     </div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {!notif.is_read && (
+                                        <button
+                                            onClick={() => markAsRead(notif.id)}
+                                            className="text-primary hover:text-primary-dark"
+                                            title="Mark as read"
+                                        >
+                                            <CheckCheck size={18} />
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => deleteNotification(notif.id)}
+                                        className="text-red-400 hover:text-red-600"
+                                        title="Delete"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
                             </div>
                         ))

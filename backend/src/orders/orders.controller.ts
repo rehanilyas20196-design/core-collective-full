@@ -1,26 +1,33 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from '../common/dto/order.dto';
 import { AdminGuard } from '../common/admin.guard';
+import { OptionalAuthGuard } from '../common/optional-auth.guard';
+import { Request } from 'express';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  @UseGuards(AdminGuard)
-  async findAll() {
-    return this.ordersService.findAll();
+  @UseGuards(OptionalAuthGuard)
+  async findAll(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.ordersService.findAll(user?.id, user?.email);
   }
 
   @Get('confirmed-count')
-  async getConfirmedCount() {
-    return this.ordersService.findConfirmedCount();
+  @UseGuards(OptionalAuthGuard)
+  async getConfirmedCount(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.ordersService.findConfirmedCount(user?.id, user?.email);
   }
 
   @Post()
-  async create(@Body() body: CreateOrderDto) {
-    return this.ordersService.create(body);
+  @UseGuards(OptionalAuthGuard)
+  async create(@Body() body: CreateOrderDto, @Req() req: Request) {
+    const user = (req as any).user;
+    return this.ordersService.create(body, user?.id);
   }
 
   @Patch(':id/status')

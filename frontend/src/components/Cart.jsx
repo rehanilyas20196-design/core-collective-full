@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
-import { ChevronDown, ArrowLeft, Trash2, Heart, ShieldCheck, Truck, MessageSquare, ShoppingCart } from 'lucide-react';
+import { ChevronDown, ArrowLeft, Trash2, Heart, ShieldCheck, Truck, MessageSquare, ShoppingCart, Tag } from 'lucide-react';
+import { api } from '../lib/api';
 
-const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) => {
+const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, clearCart }) => {
     const [savedForLater, setSavedForLater] = useState([]);
-
+    const [showDiscountForm, setShowDiscountForm] = useState(false);
+    const [discountMsg, setDiscountMsg] = useState('');
+    const [discountSending, setDiscountSending] = useState(false);
 
     const removeItem = (id) => {
         removeFromCart(id);
     };
 
     const removeAllItems = () => {
-        setCartItems([]);
+        if (clearCart) {
+            clearCart();
+        } else {
+            setCartItems([]);
+        }
     };
 
     const saveForLater = (item) => {
@@ -29,6 +36,27 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
             return [...prev, { ...item, qty: 1 }];
         });
         setSavedForLater(prev => prev.filter(i => i.id !== item.id));
+    };
+
+    const handleDiscountSubmit = async (e) => {
+        e.preventDefault();
+        if (!discountMsg.trim()) return;
+        setDiscountSending(true);
+        try {
+            const { supabase } = await import('../lib/supabase');
+            const { data: { session } } = await supabase.auth.getSession();
+            const email = session?.user?.email || 'guest@example.com';
+            const name = session?.user?.user_metadata?.full_name || email.split('@')[0];
+            await api.discountMessages.create(email, name, discountMsg);
+            alert('Discount request sent! Admin will review it shortly.');
+            setDiscountMsg('');
+            setShowDiscountForm(false);
+        } catch (error) {
+            console.error('Error sending discount request:', error);
+            alert('Failed to send request. Please try again.');
+        } finally {
+            setDiscountSending(false);
+        }
     };
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0);
@@ -55,6 +83,33 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                         Back
                     </button>
 
+                    <div className="mt-8 pt-6 border-t border-[#DEE2E7]">
+                        <button
+                            onClick={() => setShowDiscountForm(!showDiscountForm)}
+                            className="text-primary font-medium hover:underline flex items-center gap-2 mx-auto"
+                        >
+                            <Tag size={18} />
+                            Request a discount
+                        </button>
+                        {showDiscountForm && (
+                            <form onSubmit={handleDiscountSubmit} className="max-w-md mx-auto mt-4 space-y-3">
+                                <textarea
+                                    value={discountMsg}
+                                    onChange={(e) => setDiscountMsg(e.target.value)}
+                                    placeholder="Tell us about the discount you're looking for..."
+                                    className="w-full px-4 py-2 border border-[#DEE2E7] rounded-lg text-sm outline-none focus:border-primary resize-none h-24"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={discountSending}
+                                    className="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-60"
+                                >
+                                    {discountSending ? 'Sending...' : 'Send Request'}
+                                </button>
+                            </form>
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -65,17 +120,14 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
             <h1 className="text-xl sm:text-2xl font-bold text-[#1C1C1C] mb-6">My cart ({cartItems.length})</h1>
 
             <div className="flex flex-col lg:flex-row gap-8">
-                {/* Left Section: Cart Items */}
                 <div className="flex-1 space-y-4">
                     <div className="bg-white border border-[#DEE2E7] rounded-lg overflow-hidden">
                         {cartItems.map((item, index) => (
                             <div key={item.id} className={`p-4 lg:p-6 flex flex-col sm:flex-row gap-4 lg:gap-6 ${index !== cartItems.length - 1 ? 'border-b border-[#DEE2E7]' : ''}`}>
-                                {/* Product Image */}
                                 <div className="w-[80px] h-[80px] lg:w-[100px] lg:h-[100px] border border-[#DEE2E7] rounded-lg p-3 flex items-center justify-center bg-[#F7F7F7] flex-shrink-0 group overflow-hidden">
                                     <img src={item.image || item.image_url} alt={item.title || item.name} width="100" height="100" loading="lazy" className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300" />
                                 </div>
 
-                                {/* Info */}
                                 <div className="flex-1 flex flex-col md:flex-row justify-between gap-4">
                                     <div className="space-y-1.5 min-w-0">
                                         <h3 className="font-semibold text-[#1C1C1C] hover:text-primary cursor-pointer transition-colors max-w-md">{item.title || item.name}</h3>
@@ -113,7 +165,6 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                         ))}
                     </div>
 
-                    {/* Bottom Actions */}
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white p-4 rounded-lg border border-[#DEE2E7]">
                         <button
                             className="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold hover:bg-primary-dark transition-colors"
@@ -132,7 +183,6 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                         </button>
                     </div>
 
-                    {/* Saved for Later */}
                     {savedForLater.length > 0 && (
                         <div className="bg-white border border-[#DEE2E7] rounded-lg p-5">
                             <h3 className="font-bold text-[#1C1C1C] mb-4">Saved for later ({savedForLater.length})</h3>
@@ -157,7 +207,6 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                         </div>
                     )}
 
-                    {/* Benefits Bar */}
                     <div className="flex flex-wrap gap-6 py-4">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-[#DEE2E7] flex items-center justify-center text-[#8B96A5]">
@@ -189,9 +238,7 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                     </div>
                 </div>
 
-                {/* Right Section: Summary */}
                 <div className="lg:w-[280px] space-y-4">
-                    {/* Coupon */}
                     <div className="bg-white border border-[#DEE2E7] rounded-lg p-4 sm:p-5">
                         <p className="text-[#505050] text-sm mb-3">Have a coupon?</p>
                         <div className="flex border border-[#DEE2E7] rounded-md overflow-hidden">
@@ -200,7 +247,6 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                         </div>
                     </div>
 
-                    {/* Price Calculations */}
                     <div className="bg-white border border-[#DEE2E7] rounded-lg p-4 sm:p-5 shadow-sm">
                         <div className="space-y-3 mb-4">
                             <div className="flex justify-between text-[#505050]">
@@ -232,7 +278,6 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart }) 
                         </button>
 
                         <div className="mt-4 flex flex-wrap justify-center gap-2 opacity-60">
-                            {/* Payment icon placeholders */}
                             <div className="w-8 h-5 bg-gray-200 rounded"></div>
                             <div className="w-8 h-5 bg-gray-200 rounded"></div>
                             <div className="w-8 h-5 bg-gray-200 rounded"></div>

@@ -1,30 +1,47 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
 export class OrdersService {
   constructor(private supabase: SupabaseService) {}
 
-  async findAll() {
-    const { data, error } = await this.supabase
+  async findAll(userId?: string, userEmail?: string) {
+    const isAdmin = userEmail === 'rehanilyas20196@gmail.com';
+
+    let query = this.supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (!isAdmin && userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query;
     if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 
-  async findConfirmedCount() {
-    const { count, error } = await this.supabase
+  async findConfirmedCount(userId?: string, userEmail?: string) {
+    const isAdmin = userEmail === 'rehanilyas20196@gmail.com';
+
+    let query = this.supabase
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'confirmed');
+
+    if (!isAdmin && userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { count, error } = await query;
     if (error) throw new InternalServerErrorException(error.message);
     return count || 0;
   }
 
-  async create(orderData: any) {
+  async create(orderData: any, userId?: string) {
     const payload = {
+      user_id: userId || null,
       full_name: orderData.full_name,
       phone_number: orderData.phone_number,
       province: orderData.province,

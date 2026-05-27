@@ -8,6 +8,13 @@ async function bootstrap() {
 
   app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: false,
+    xssFilter: true,
+    noSniff: true,
+    hidePoweredBy: true,
+    frameguard: { action: 'deny' },
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   }));
 
   app.enableCors({
