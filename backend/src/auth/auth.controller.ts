@@ -8,7 +8,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ default: { limit: 500, ttl: 60000 } })
   async signUp(@Body() body: SignUpDto) {
     return this.authService.signUp(body.email, body.password, {
       full_name: body.full_name,
