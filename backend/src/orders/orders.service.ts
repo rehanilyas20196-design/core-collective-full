@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class OrdersService {
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 
@@ -19,7 +19,7 @@ export class OrdersService {
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'confirmed');
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return count || 0;
   }
 
@@ -45,7 +45,7 @@ export class OrdersService {
       .from('orders')
       .insert([payload])
       .select();
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -55,7 +55,7 @@ export class OrdersService {
       .update({ status })
       .eq('id', orderId)
       .select();
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -64,7 +64,7 @@ export class OrdersService {
       .from('orders')
       .delete()
       .eq('id', orderId);
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return { deleted: true };
   }
 }

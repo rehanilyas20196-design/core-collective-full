@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -32,7 +32,7 @@ export class AuthService {
       },
     });
 
-    if (error) throw error;
+    if (error) throw new ConflictException(error.message);
     return data;
   }
 
@@ -44,19 +44,19 @@ export class AuthService {
       password: pepperedPassword,
     });
 
-    if (error) throw error;
+    if (error) throw new UnauthorizedException(error.message);
     return data;
   }
 
   async signOut(accessToken: string) {
     const { error } = await this.supabase.auth.signOut();
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return { success: true };
   }
 
   async getSession() {
     const { data, error } = await this.supabase.auth.getSession();
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 
@@ -64,7 +64,7 @@ export class AuthService {
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
     });
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 }

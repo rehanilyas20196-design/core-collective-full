@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class SupplierInquiriesService {
       .from('supplier_inquiries')
       .insert([payload])
       .select();
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return result;
   }
 }

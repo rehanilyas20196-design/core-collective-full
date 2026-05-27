@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class ReviewsService {
       .select('*')
       .eq('product_id', productId)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 
@@ -33,7 +33,7 @@ export class ReviewsService {
       .from('reviews')
       .insert([payload])
       .select();
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data;
   }
 }

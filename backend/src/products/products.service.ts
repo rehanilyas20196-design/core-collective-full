@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class ProductsService {
       query = query.ilike('name', `%${searchQuery.trim()}%`);
     }
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 
@@ -21,7 +21,7 @@ export class ProductsService {
       .select('*')
       .eq('id', id)
       .single();
-    if (error) throw error;
+    if (error) throw new NotFoundException(error.message);
     return data;
   }
 
@@ -32,7 +32,7 @@ export class ProductsService {
       .eq('category', category)
       .neq('id', productId)
       .limit(6);
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 
@@ -40,7 +40,7 @@ export class ProductsService {
     const { data, error } = await this.supabase
       .from('products')
       .select('category');
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     const unique = [...new Set((data || []).map((item: any) => item.category).filter(Boolean))];
     return unique;
   }
@@ -50,7 +50,7 @@ export class ProductsService {
       .from('products')
       .select('*')
       .limit(limit);
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 
@@ -59,7 +59,7 @@ export class ProductsService {
       .from('products')
       .select('id, name, category, price, stock')
       .limit(limit);
-    if (error) throw error;
+    if (error) throw new InternalServerErrorException(error.message);
     return data || [];
   }
 }
