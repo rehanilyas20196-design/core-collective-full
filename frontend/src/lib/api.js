@@ -63,8 +63,8 @@ async function request(path, options = {}) {
 
 export const api = {
   auth: {
-    signup: (email, password, fullName, joiningDate, phone, dateOfBirth, cfTurnstileToken) =>
-      request('/auth/signup', { method: 'POST', body: { email, password, full_name: fullName, joiningDate, phone, date_of_birth: dateOfBirth, cf_turnstile_token: cfTurnstileToken } }),
+    signup: (email, password, fullName, joiningDate, phone, cfTurnstileToken) =>
+      request('/auth/signup', { method: 'POST', body: { email, password, full_name: fullName, joiningDate, phone, cf_turnstile_token: cfTurnstileToken } }),
     login: (email, password, cfTurnstileToken) =>
       request('/auth/login', { method: 'POST', body: { email, password, cf_turnstile_token: cfTurnstileToken } }),
     logout: () =>

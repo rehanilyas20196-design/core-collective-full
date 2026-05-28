@@ -15,8 +15,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         password: '',
         confirmPassword: '',
         joiningDate: new Date().toISOString().split('T')[0],
-        phone: '',
-        date_of_birth: ''
+        phone: ''
     });
     const [cfToken, setCfToken] = useState('');
     const turnstileRef = useRef(null);
@@ -31,21 +30,27 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
 
     useEffect(() => {
         if (userProfile) return;
-        const timer = setTimeout(() => {
-            if (!window.turnstile) return;
+        let attempts = 0;
+        const initTurnstile = () => {
+            if (!window.turnstile) {
+                if (attempts++ < 20) setTimeout(initTurnstile, 250);
+                return;
+            }
             if (turnstileWidgetId.current) {
-                window.turnstile.remove(turnstileWidgetId.current);
+                try { window.turnstile.remove(turnstileWidgetId.current); } catch {}
             }
             if (turnstileRef.current) {
-                turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
-                    sitekey: TURNSTILE_SITE_KEY,
-                    callback: (token) => setCfToken(token),
-                    'expired-callback': () => setCfToken(''),
-                });
+                try {
+                    turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+                        sitekey: TURNSTILE_SITE_KEY,
+                        callback: (token) => setCfToken(token),
+                        'expired-callback': () => setCfToken(''),
+                    });
+                } catch {}
             }
-        }, 500);
+        };
+        initTurnstile();
         return () => {
-            clearTimeout(timer);
             if (turnstileWidgetId.current) {
                 try { window.turnstile.remove(turnstileWidgetId.current); } catch {}
             }
@@ -130,8 +135,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         id: user.id,
                         name: user.user_metadata?.full_name || formData.email.split('@')[0],
                         email: user.email,
-                        phone: user.user_metadata?.phone || '',
-                        date_of_birth: user.user_metadata?.date_of_birth || '',
+                        phone: user.user_metadata?.phone || ''
                     });
                     window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
                     resetTurnstile();
@@ -152,29 +156,12 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         }
 
         try {
-            const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate, formData.phone, formData.date_of_birth, cfToken);
+            const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate, formData.phone, cfToken);
             if (data?.user) {
-                const loginData = await api.auth.login(formData.email, formData.password, cfToken);
-                const user = loginData?.user || loginData?.session?.user;
-                if (user && loginData?.session) {
-                    await supabase.auth.setSession({
-                        access_token: loginData.session.access_token,
-                        refresh_token: loginData.session.refresh_token,
-                    });
-                    setAuthMessage('Account created and logged in successfully!');
-                    setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
-                    setUserProfile({
-                        id: user.id,
-                        name: user.user_metadata?.full_name || formData.name || user.email.split('@')[0],
-                        email: user.email,
-                        phone: user.user_metadata?.phone || formData.phone || '',
-                        date_of_birth: user.user_metadata?.date_of_birth || formData.date_of_birth || '',
-                    });
-                    window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
-                    resetTurnstile();
-                    setPage('home');
-                    return;
-                }
+                setAuthMessage('Verification email sent! Please check your inbox and confirm your email before logging in.');
+                resetTurnstile();
+                setIsLogin(true);
+                return;
             }
             setAuthMessage('Signup successful! You can now log in.');
         } catch (error) {
@@ -281,7 +268,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                                 <h1 className="text-xl sm:text-2xl font-bold truncate">{userProfile.name || 'User'}</h1>
                                 <p className="text-white/80 text-sm mt-1 truncate">{userProfile.email}</p>
                                 {userProfile.phone && <p className="text-white/70 text-xs mt-1 truncate flex items-center gap-1"><Phone className="w-3 h-3" />{userProfile.phone}</p>}
-                                {userProfile.date_of_birth && <p className="text-white/70 text-xs mt-1 truncate flex items-center gap-1"><svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>DOB: {userProfile.date_of_birth}</p>}
                                 <div className="flex items-center gap-2 mt-3">
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium border border-white/10">
                                         <Shield className="w-3 h-3" />
@@ -616,26 +602,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                                         value={formData.phone}
                                         onChange={handleInputChange}
                                         placeholder="+92 XXX XXXXXXX"
-                                        className="w-full pl-10 pr-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all"
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {!isLogin && (
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-medium text-dark">Date of Birth</label>
-                                <div className="relative">
-                                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-secondary pointer-events-none">
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <input
-                                        type="date"
-                                        name="date_of_birth"
-                                        value={formData.date_of_birth}
-                                        onChange={handleInputChange}
                                         className="w-full pl-10 pr-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all"
                                     />
                                 </div>

@@ -22,7 +22,7 @@ import { MessagesModule } from './messages/messages.module';
     ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
     ThrottlerModule.forRoot([{
       ttl: 60000,
-      limit: 100,
+      limit: 10000,
     }]),
     SupabaseModule,
     ProductsModule,
