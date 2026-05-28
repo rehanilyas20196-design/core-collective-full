@@ -12,9 +12,10 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  private async verifyTurnstile(token: string): Promise<void> {
+  private async verifyTurnstile(token?: string): Promise<void> {
     const secretKey = this.configService.get<string>('TURNSTILE_SECRET_KEY');
     if (!secretKey) return;
+    if (!token) throw new BadRequestException('CAPTCHA verification required. Please complete the security check.');
 
     const formData = new URLSearchParams();
     formData.append('secret', secretKey);

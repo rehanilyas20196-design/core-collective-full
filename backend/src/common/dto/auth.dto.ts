@@ -18,8 +18,9 @@ export class SignUpDto {
   @IsString()
   joiningDate?: string;
 
+  @IsOptional()
   @IsString()
-  cf_turnstile_token: string;
+  cf_turnstile_token?: string;
 }
 
 export class LoginDto {
@@ -29,6 +30,7 @@ export class LoginDto {
   @IsString()
   password: string;
 
+  @IsOptional()
   @IsString()
-  cf_turnstile_token: string;
+  cf_turnstile_token?: string;
 }
