@@ -122,21 +122,11 @@ function App() {
         id: user.id,
         name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
         email: user.email,
-        phone: user.user_metadata?.phone || '',
-        date_of_birth: user.user_metadata?.date_of_birth || '',
+        phone: user.user_metadata?.phone || ''
       };
       setUserProfile(profile);
       setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
-      loadCart(user.id);
-      loadFavorites(user.id);
-      loadNotifications(user.id);
     };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session?.user) {
-        onUserReady(session.user);
-      }
-    });
 
     supabase.auth.getUser().then(({ data: { user }, error }) => {
       if (!error && user && !cancelled) {
@@ -144,8 +134,22 @@ function App() {
       }
     });
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user && !cancelled) {
+        onUserReady(session.user);
+      }
+    });
+
     return () => { cancelled = true; subscription?.unsubscribe(); };
   }, [loadCart, loadFavorites, loadNotifications]);
+
+  useEffect(() => {
+    if (userProfile?.id) {
+      loadCart(userProfile.id);
+      loadFavorites(userProfile.id);
+      loadNotifications(userProfile.id);
+    }
+  }, [userProfile?.id]);
 
   useEffect(() => {
     const handleAuthChange = (e) => {

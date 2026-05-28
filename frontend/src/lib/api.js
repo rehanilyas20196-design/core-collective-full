@@ -21,6 +21,8 @@ function sanitizeUrls(obj) {
 
 async function getToken() {
   const { supabase } = await import('./supabase');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return '';
   const { data: { session } } = await supabase.auth.getSession();
   return session?.access_token || '';
 }
