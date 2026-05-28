@@ -23,7 +23,7 @@ async function getToken() {
   const { supabase } = await import('./supabase');
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.access_token) return session.access_token;
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
   if (!user) return '';
   const { data: { session: refreshed } } = await supabase.auth.getSession();
   return refreshed?.access_token || '';

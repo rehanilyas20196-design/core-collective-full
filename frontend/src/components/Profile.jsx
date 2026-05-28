@@ -203,10 +203,10 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                 password: newPassword
             });
             if (error) throw error;
-            await supabase.auth.signOut();
             setNewPassword('');
             setCurrentPassword('');
             setSettingsMsg('Password updated successfully! Please sign in with your new password.');
+            try { await supabase.auth.signOut(); } catch {}
             setUserProfile(null);
             setIsAdmin(false);
             window.dispatchEvent(new CustomEvent('authExpired'));
