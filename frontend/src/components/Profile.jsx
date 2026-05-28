@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, ShoppingBag, Heart, Package, Settings, LogOut, ChevronRight, ArrowLeft, Shield, Clock, Award, MapPin, CreditCard, Bell } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, ShoppingBag, Heart, Package, Settings, LogOut, ChevronRight, ArrowLeft, Shield, CreditCard, Bell, MapPin, Phone, Edit3 } from 'lucide-react';
 import { api } from '../lib/api';
 import { supabase } from '../lib/supabase';
 
@@ -7,7 +7,6 @@ const TURNSTILE_SITE_KEY = '0x4AAAAAADXvb-lWRkZj3Kxs';
 
 const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile }) => {
     const [isLogin, setIsLogin] = useState(true);
-
     const [showPassword, setShowPassword] = useState(false);
     const [authMessage, setAuthMessage] = useState('');
     const [formData, setFormData] = useState({
@@ -20,6 +19,13 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
     const [cfToken, setCfToken] = useState('');
     const turnstileRef = useRef(null);
     const turnstileWidgetId = useRef(null);
+
+    const [accountName, setAccountName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [settingsMsg, setSettingsMsg] = useState('');
+    const [activeSettingsTab, setActiveSettingsTab] = useState(null);
 
     useEffect(() => {
         if (userProfile) return;
@@ -52,10 +58,15 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                 setIsLogin(true);
             }
         };
-
         window.addEventListener('setAuthMode', handleSetAuthMode);
         return () => window.removeEventListener('setAuthMode', handleSetAuthMode);
     }, []);
+
+    useEffect(() => {
+        if (userProfile) {
+            setAccountName(userProfile.name || '');
+        }
+    }, [userProfile]);
 
     const signInWithGoogle = async () => {
         try {
@@ -82,10 +93,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
     };
 
     const handleInputChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e) => {
@@ -113,7 +121,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             refresh_token: data.session.refresh_token,
                         });
                     }
-                    setAuthMessage('Login successful ✅');
+                    setAuthMessage('Login successful!');
                     setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
                     setUserProfile({
                         id: user.id,
@@ -148,7 +156,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         access_token: loginData.session.access_token,
                         refresh_token: loginData.session.refresh_token,
                     });
-                    setAuthMessage('Account created and logged in successfully ✅');
+                    setAuthMessage('Account created and logged in successfully!');
                     setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
                     setUserProfile({
                         id: user.id,
@@ -161,7 +169,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                     return;
                 }
             }
-            setAuthMessage('Signup successful ✅ You can now log in.');
+            setAuthMessage('Signup successful! You can now log in.');
         } catch (error) {
             setAuthMessage(error.message || 'Unable to create account.');
             return;
@@ -176,11 +184,57 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         }
     };
 
+    const handleUpdateName = async () => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
+            const { error } = await supabase.auth.updateUser({
+                data: { full_name: accountName }
+            });
+            if (error) throw error;
+            setUserProfile(prev => ({ ...prev, name: accountName }));
+            setSettingsMsg('Account name updated successfully!');
+            setTimeout(() => setSettingsMsg(''), 3000);
+        } catch (err) {
+            setSettingsMsg('Error updating name: ' + err.message);
+        }
+    };
+
+    const handleUpdatePassword = async () => {
+        try {
+            const { error } = await supabase.auth.updateUser({
+                password: newPassword
+            });
+            if (error) throw error;
+            setNewPassword('');
+            setCurrentPassword('');
+            setSettingsMsg('Password updated successfully!');
+            setTimeout(() => setSettingsMsg(''), 3000);
+        } catch (err) {
+            setSettingsMsg('Error updating password: ' + err.message);
+        }
+    };
+
+    const handleUpdatePhone = async () => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('Not authenticated');
+            const { error } = await supabase.auth.updateUser({
+                data: { phone: phoneNumber }
+            });
+            if (error) throw error;
+            setSettingsMsg('Phone number updated successfully!');
+            setTimeout(() => setSettingsMsg(''), 3000);
+        } catch (err) {
+            setSettingsMsg('Error updating phone: ' + err.message);
+        }
+    };
+
     if (userProfile) {
         const initials = (userProfile.name || 'U').charAt(0).toUpperCase();
         const memberSince = userProfile.created_at
             ? new Date(userProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-            : '2025';
+            : new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
         const quickActions = [
             { icon: ShoppingBag, label: 'Orders', color: 'bg-blue-50 text-blue-600', onClick: () => setPage('orders') },
@@ -189,13 +243,10 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
             { icon: Bell, label: 'Notifications', color: 'bg-amber-50 text-amber-600', onClick: () => setPage('notifications') },
         ];
 
-        const menuItems = [
-            { icon: MapPin, label: 'Shipping Addresses', onClick: () => setPage('shipping-info') },
-            { icon: CreditCard, label: 'Payment Methods', onClick: () => setPage('checkout') },
-            { icon: Shield, label: 'Privacy & Security', onClick: () => setPage('faq') },
-            { icon: Clock, label: 'Order History', onClick: () => setPage('orders') },
-            { icon: Settings, label: 'Account Settings', onClick: () => setPage('profile') },
-            { icon: Award, label: 'Membership', onClick: () => setPage('home') },
+        const paymentMethods = [
+            { name: 'JazzCash', number: '+92 345 5900229', owner: 'Core Collective' },
+            { name: 'EasyPaisa', number: '+92 345 5900229', owner: 'Core Collective' },
+            { name: 'Direct Bank Transfer', details: 'Faysal Bank Ltd - PK63FAYS0000123456789' },
         ];
 
         return (
@@ -220,14 +271,10 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             <div className="flex-1 min-w-0">
                                 <h1 className="text-xl sm:text-2xl font-bold truncate">{userProfile.name || 'User'}</h1>
                                 <p className="text-white/80 text-sm mt-1 truncate">{userProfile.email}</p>
-                                <div className="flex items-center gap-4 mt-3 text-xs text-white/70">
-                                    <span className="flex items-center gap-1.5">
-                                        <Award className="w-3.5 h-3.5" />
-                                        Member since {memberSince}
-                                    </span>
-                                    <span className="flex items-center gap-1.5">
-                                        <Shield className="w-3.5 h-3.5" />
-                                        {userProfile.name === 'Admin' ? 'Administrator' : 'Verified'}
+                                <div className="flex items-center gap-2 mt-3">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium border border-white/10">
+                                        <Shield className="w-3 h-3" />
+                                        Verified
                                     </span>
                                 </div>
                             </div>
@@ -257,24 +304,183 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         ))}
                     </div>
 
-                    {/* Account Menu */}
+                    {/* Membership Section */}
+                    <div className="bg-white border border-shade-border rounded-2xl overflow-hidden">
+                        <div className="px-5 py-4 bg-gradient-to-r from-amber-50 to-transparent border-b border-shade-border">
+                            <h2 className="font-bold text-dark text-sm uppercase tracking-wider flex items-center gap-2">
+                                <Shield className="w-4 h-4 text-amber-600" />
+                                Membership
+                            </h2>
+                        </div>
+                        <div className="p-5">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p className="font-medium text-dark">Core Collective Member</p>
+                                    <p className="text-sm text-secondary">Joined {memberSince}</p>
+                                </div>
+                                <span className="ml-auto px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium border border-green-200">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Account Settings */}
                     <div className="bg-white border border-shade-border rounded-2xl overflow-hidden divide-y divide-shade-border">
                         <div className="px-5 py-4 bg-gradient-to-r from-primary/5 to-transparent">
-                            <h2 className="font-bold text-dark text-sm uppercase tracking-wider">Account Settings</h2>
+                            <h2 className="font-bold text-dark text-sm uppercase tracking-wider flex items-center gap-2">
+                                <Settings className="w-4 h-4" />
+                                Account Settings
+                            </h2>
                         </div>
-                        {menuItems.map((item, idx) => (
+
+                        {/* Update Name */}
+                        <div className="p-5">
                             <button
-                                key={idx}
-                                onClick={item.onClick}
-                                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-shade/50 transition-colors text-left group"
+                                onClick={() => setActiveSettingsTab(activeSettingsTab === 'name' ? null : 'name')}
+                                className="w-full flex items-center gap-4 text-left group"
                             >
-                                <div className="w-9 h-9 rounded-lg bg-shade flex items-center justify-center text-secondary group-hover:text-primary group-hover:bg-primary/10 transition-all">
-                                    <item.icon className="w-4.5 h-4.5" />
+                                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                                    <User className="w-4.5 h-4.5" />
                                 </div>
-                                <span className="flex-1 text-sm font-medium text-dark">{item.label}</span>
-                                <ChevronRight className="w-4 h-4 text-secondary group-hover:text-primary transition-colors" />
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-dark">Account Name</p>
+                                    <p className="text-xs text-secondary">{accountName || userProfile.name || 'Not set'}</p>
+                                </div>
+                                <ChevronRight className={`w-4 h-4 text-secondary transition-transform ${activeSettingsTab === 'name' ? 'rotate-90' : ''}`} />
                             </button>
-                        ))}
+                            {activeSettingsTab === 'name' && (
+                                <div className="mt-4 pt-4 border-t border-shade-border space-y-3">
+                                    <input
+                                        type="text"
+                                        value={accountName}
+                                        onChange={(e) => setAccountName(e.target.value)}
+                                        placeholder="Enter your full name"
+                                        className="w-full px-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary outline-none text-sm"
+                                    />
+                                    <button
+                                        onClick={handleUpdateName}
+                                        className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+                                    >
+                                        Update Name
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Update Password */}
+                        <div className="p-5">
+                            <button
+                                onClick={() => setActiveSettingsTab(activeSettingsTab === 'password' ? null : 'password')}
+                                className="w-full flex items-center gap-4 text-left group"
+                            >
+                                <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
+                                    <Lock className="w-4.5 h-4.5" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-dark">Password</p>
+                                    <p className="text-xs text-secondary">Update your account password</p>
+                                </div>
+                                <ChevronRight className={`w-4 h-4 text-secondary transition-transform ${activeSettingsTab === 'password' ? 'rotate-90' : ''}`} />
+                            </button>
+                            {activeSettingsTab === 'password' && (
+                                <div className="mt-4 pt-4 border-t border-shade-border space-y-3">
+                                    <input
+                                        type="password"
+                                        value={currentPassword}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        placeholder="Current password"
+                                        className="w-full px-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary outline-none text-sm"
+                                    />
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        placeholder="New password"
+                                        className="w-full px-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary outline-none text-sm"
+                                    />
+                                    <button
+                                        onClick={handleUpdatePassword}
+                                        disabled={!currentPassword || !newPassword}
+                                        className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
+                                    >
+                                        Update Password
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Add Phone Number */}
+                        <div className="p-5">
+                            <button
+                                onClick={() => setActiveSettingsTab(activeSettingsTab === 'phone' ? null : 'phone')}
+                                className="w-full flex items-center gap-4 text-left group"
+                            >
+                                <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
+                                    <Phone className="w-4.5 h-4.5" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-dark">Phone Number</p>
+                                    <p className="text-xs text-secondary">{phoneNumber || 'Add your phone number'}</p>
+                                </div>
+                                <ChevronRight className={`w-4 h-4 text-secondary transition-transform ${activeSettingsTab === 'phone' ? 'rotate-90' : ''}`} />
+                            </button>
+                            {activeSettingsTab === 'phone' && (
+                                <div className="mt-4 pt-4 border-t border-shade-border space-y-3">
+                                    <input
+                                        type="tel"
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                        placeholder="+92 XXX XXXXXXX"
+                                        className="w-full px-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary outline-none text-sm"
+                                    />
+                                    <button
+                                        onClick={handleUpdatePhone}
+                                        disabled={!phoneNumber}
+                                        className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
+                                    >
+                                        Save Phone Number
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {settingsMsg && (
+                            <div className="px-5 pb-4">
+                                <div className="p-3 rounded-xl text-sm text-center font-medium bg-green-50 text-green-700 border border-green-200">
+                                    {settingsMsg}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Payment Methods */}
+                    <div className="bg-white border border-shade-border rounded-2xl overflow-hidden">
+                        <div className="px-5 py-4 bg-gradient-to-r from-primary/5 to-transparent border-b border-shade-border">
+                            <h2 className="font-bold text-dark text-sm uppercase tracking-wider flex items-center gap-2">
+                                <CreditCard className="w-4 h-4" />
+                                Payment Methods
+                            </h2>
+                        </div>
+                        <div className="divide-y divide-shade-border">
+                            {paymentMethods.map((method, idx) => (
+                                <div key={idx} className="p-5 flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-lg bg-shade flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                                        {method.name === 'JazzCash' ? 'JC' : method.name === 'EasyPaisa' ? 'EP' : 'Bank'}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-dark">{method.name}</p>
+                                        {method.number && <p className="text-xs text-secondary">{method.number} - {method.owner}</p>}
+                                        {method.details && <p className="text-xs text-secondary">{method.details}</p>}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Mobile Sign Out */}
@@ -301,7 +507,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
             </button>
 
             <div className="max-w-md mx-auto">
-                {/* Header */}
                 <div className="text-center mb-8">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-5 shadow-sm border border-primary/10">
                         <svg className="w-8 h-8 sm:w-10 sm:h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,7 +514,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         </svg>
                     </div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-dark">
-                        {isLogin ? 'Welcome back' : 'Join Core Collective'}
+                        {isLogin ? 'Welcome Back' : 'Join Core Collective'}
                     </h1>
                     <p className="text-secondary mt-2 text-sm">
                         {isLogin
@@ -319,7 +524,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                     </p>
                 </div>
 
-                {/* Auth Tabs */}
                 <div className="bg-white border border-shade-border rounded-2xl shadow-lg overflow-hidden">
                     <div className="flex">
                         <button
@@ -351,7 +555,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                     <div className="h-px bg-shade-border"></div>
 
                     <form onSubmit={handleSubmit} className="p-5 sm:p-7 space-y-5">
-                        {/* Full Name - Signup only */}
                         {!isLogin && (
                             <div className="space-y-1.5">
                                 <label className="text-sm font-medium text-dark">Full Name</label>
@@ -370,7 +573,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         )}
 
-                        {/* Joining Date - Signup only */}
                         {!isLogin && (
                             <div className="space-y-1.5">
                                 <label className="text-sm font-medium text-dark">Joining Date</label>
@@ -392,7 +594,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         )}
 
-                        {/* Email */}
                         <div className="space-y-1.5">
                             <label className="text-sm font-medium text-dark">Email Address</label>
                             <div className="relative">
@@ -409,7 +610,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         </div>
 
-                        {/* Password */}
                         <div className="space-y-1.5">
                             <label className="text-sm font-medium text-dark">Password</label>
                             <div className="relative">
@@ -433,7 +633,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         </div>
 
-                        {/* Confirm Password - Signup only */}
                         {!isLogin && (
                             <div className="space-y-1.5">
                                 <label className="text-sm font-medium text-dark">Confirm Password</label>
@@ -452,7 +651,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         )}
 
-                        {/* Forgot Password - Login only */}
                         {isLogin && (
                             <div className="flex justify-end">
                                 <button type="button" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
@@ -461,10 +659,8 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         )}
 
-                        {/* Turnstile CAPTCHA */}
                         <div ref={turnstileRef} className="flex justify-center" />
 
-                        {/* Submit */}
                         <button
                             type="submit"
                             className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
@@ -472,10 +668,9 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             {isLogin ? 'Sign In' : 'Create Account'}
                         </button>
 
-                        {/* Auth Message */}
                         {authMessage && (
                             <div className={`p-3 rounded-xl text-sm text-center font-medium ${
-                                authMessage.includes('successful') || authMessage.includes('successful')
+                                authMessage.includes('successful') || authMessage.includes('successfully')
                                     ? 'bg-green-50 text-green-700 border border-green-200'
                                     : 'bg-red-50 text-red-700 border border-red-200'
                             }`}>
@@ -483,7 +678,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         )}
 
-                        {/* Divider */}
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-shade-border"></div>
@@ -493,7 +687,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             </div>
                         </div>
 
-                        {/* Google */}
                         <button
                             type="button"
                             onClick={signInWithGoogle}

@@ -376,9 +376,6 @@ function App() {
                 items={categories?.[cat] ?? []}
                 setPage={handleSetPage}
                 category={cat}
-                addToCart={addToCart}
-                toggleFavorite={toggleFavorite}
-                favorites={favorites}
               />
             ))}
 
