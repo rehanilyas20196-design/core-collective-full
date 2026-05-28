@@ -57,6 +57,12 @@ async function request(path, options = {}) {
         window.dispatchEvent(new CustomEvent('authExpired'));
       }
     }
+    if (res.status === 429) {
+      const retryAfter = res.headers.get('Retry-After');
+      const seconds = retryAfter ? parseInt(retryAfter) : 60;
+      const minutes = Math.ceil(seconds / 60);
+      throw new Error(`Too many requests. Please try again after ${minutes} minute${minutes > 1 ? 's' : ''}.`);
+    }
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(err.message || `Request failed: ${res.status}`);
   }

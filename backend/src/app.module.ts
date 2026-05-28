@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CustomThrottlerGuard } from './common/custom-throttler.guard';
 import { SupabaseModule } from './supabase/supabase.module';
 import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
@@ -22,7 +24,7 @@ import { MessagesModule } from './messages/messages.module';
     ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
     ThrottlerModule.forRoot([{
       ttl: 60000,
-      limit: 10000,
+      limit: 100,
     }]),
     SupabaseModule,
     ProductsModule,
@@ -39,6 +41,9 @@ import { MessagesModule } from './messages/messages.module';
     NotificationsModule,
     DiscountMessagesModule,
     MessagesModule,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: CustomThrottlerGuard },
   ],
 })
 export class AppModule {}
