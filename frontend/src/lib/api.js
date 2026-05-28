@@ -28,7 +28,9 @@ async function getToken() {
 async function request(path, options = {}) {
   const url = `${API_BASE}${path}`;
   const token = await getToken();
-  const headers = { 'Content-Type': 'application/json', ...options.headers };
+  const isFormData = options.body instanceof FormData;
+  const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
+  Object.assign(headers, options.headers);
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;

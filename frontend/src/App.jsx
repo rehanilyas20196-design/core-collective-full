@@ -379,7 +379,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header setPage={handleSetPage} cartCount={cartCount} favoritesCount={favorites.length} confirmedOrdersCount={notifCount || confirmedOrdersCount} isAdmin={isAdmin} userProfile={userProfile} />
+      <Header setPage={handleSetPage} cartCount={cartCount} favoritesCount={favorites.length} confirmedOrdersCount={notifCount} isAdmin={isAdmin} userProfile={userProfile} />
 
       {currentPage !== 'profile' && (
         <>

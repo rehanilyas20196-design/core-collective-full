@@ -43,9 +43,13 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
     const handleSignOut = async () => {
         try {
             await api.auth.logout();
+            await supabase.auth.signOut();
         } catch (e) {
             console.error(e);
         }
+        setUserProfile(null);
+        setIsAdmin(false);
+        window.dispatchEvent(new CustomEvent('authExpired'));
         setPage('home');
     };
 
