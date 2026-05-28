@@ -19,7 +19,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
   async signIn(@Body() body: LoginDto) {
     return this.authService.signIn(body.email, body.password, body.cf_turnstile_token);
   }
