@@ -79,7 +79,7 @@ const InquiryForm = ({ userProfile }) => {
               placeholder="What item you need?" 
               value={formData.item_name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-shade-border rounded-md focus:ring-1 focus:ring-primary outline-none"
+              className="w-full px-4 py-2 border border-shade-border rounded-md focus:ring-1 focus:ring-primary outline-none text-gray-900"
               required
             />
             <textarea 
@@ -87,7 +87,7 @@ const InquiryForm = ({ userProfile }) => {
               placeholder="Type more details" 
               value={formData.details}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-shade-border rounded-md h-24 focus:ring-1 focus:ring-primary outline-none resize-none"
+              className="w-full px-4 py-2 border border-shade-border rounded-md h-24 focus:ring-1 focus:ring-primary outline-none resize-none text-gray-900"
               required
             ></textarea>
             <div className="grid grid-cols-2 gap-4">
@@ -100,7 +100,7 @@ const InquiryForm = ({ userProfile }) => {
                   placeholder="Quantity"
                   value={formData.quantity}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-shade-border rounded-md outline-none"
+                   className="w-full px-4 py-2 border border-shade-border rounded-md outline-none text-gray-900"
                   required
                 />
               </div>
@@ -111,7 +111,7 @@ const InquiryForm = ({ userProfile }) => {
                   name="unit"
                   value={formData.unit}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-shade-border rounded-md bg-white outline-none"
+                  className="w-full px-4 py-2 border border-shade-border rounded-md bg-white outline-none text-gray-900"
                 >
                   <option>Pcs</option>
                   <option>Kgs</option>
