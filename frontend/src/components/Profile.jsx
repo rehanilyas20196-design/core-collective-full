@@ -199,6 +199,23 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
 
     const handleUpdatePassword = async () => {
         try {
+            if (newPassword.length < 8) {
+                setSettingsMsg('New password must be at least 8 characters.');
+                return;
+            }
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user || !user.email) {
+                setSettingsMsg('Session error. Please sign out and sign in again.');
+                return;
+            }
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: user.email,
+                password: currentPassword,
+            });
+            if (signInError) {
+                setSettingsMsg('Current password is incorrect.');
+                return;
+            }
             const { error } = await supabase.auth.updateUser({
                 password: newPassword
             });
