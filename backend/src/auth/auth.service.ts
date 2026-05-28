@@ -1,14 +1,37 @@
-import { Injectable, UnauthorizedException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
+import { ConfigService } from '@nestjs/config';
+
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
 @Injectable()
 export class AuthService {
 
   constructor(
     private supabase: SupabaseService,
+    private configService: ConfigService,
   ) {}
 
-  async signUp(email: string, password: string, metadata?: { full_name?: string; joiningDate?: string }) {
+  private async verifyTurnstile(token: string): Promise<void> {
+    const secretKey = this.configService.get<string>('TURNSTILE_SECRET_KEY');
+    if (!secretKey) return;
+
+    const formData = new URLSearchParams();
+    formData.append('secret', secretKey);
+    formData.append('response', token);
+
+    const res = await fetch(TURNSTILE_VERIFY_URL, {
+      method: 'POST',
+      body: formData,
+    });
+    const result = await res.json();
+    if (!result.success) {
+      throw new BadRequestException('CAPTCHA verification failed. Please try again.');
+    }
+  }
+
+  async signUp(email: string, password: string, cfTurnstileToken: string, metadata?: { full_name?: string; joiningDate?: string }) {
+    await this.verifyTurnstile(cfTurnstileToken);
     const { data, error } = await this.supabase.auth.signUp({
       email,
       password,
@@ -32,7 +55,8 @@ export class AuthService {
     return data;
   }
 
-  async signIn(email: string, password: string) {
+  async signIn(email: string, password: string, cfTurnstileToken: string) {
+    await this.verifyTurnstile(cfTurnstileToken);
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
       password,

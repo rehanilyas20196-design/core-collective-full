@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Mail, Lock, User, Eye, EyeOff, ShoppingBag, Heart, Package, Settings, LogOut, ChevronRight, ArrowLeft, Shield, Clock, Award, MapPin, CreditCard, Bell } from 'lucide-react';
 import { api } from '../lib/api';
 import { supabase } from '../lib/supabase';
+
+const TURNSTILE_SITE_KEY = '0x4AAAAAADXvb-lWRkZj3Kxs';
 
 const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +17,32 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         confirmPassword: '',
         joiningDate: new Date().toISOString().split('T')[0]
     });
+    const [cfToken, setCfToken] = useState('');
+    const turnstileRef = useRef(null);
+    const turnstileWidgetId = useRef(null);
+
+    useEffect(() => {
+        if (userProfile) return;
+        const timer = setTimeout(() => {
+            if (!window.turnstile) return;
+            if (turnstileWidgetId.current) {
+                window.turnstile.remove(turnstileWidgetId.current);
+            }
+            if (turnstileRef.current) {
+                turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+                    sitekey: TURNSTILE_SITE_KEY,
+                    callback: (token) => setCfToken(token),
+                    'expired-callback': () => setCfToken(''),
+                });
+            }
+        }, 500);
+        return () => {
+            clearTimeout(timer);
+            if (turnstileWidgetId.current) {
+                try { window.turnstile.remove(turnstileWidgetId.current); } catch {}
+            }
+        };
+    }, [userProfile, isLogin]);
 
     useEffect(() => {
         const handleSetAuthMode = (e) => {
@@ -69,9 +97,14 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
             return;
         }
 
+        if (!cfToken) {
+            setAuthMessage('Please complete the security check (CAPTCHA).');
+            return;
+        }
+
         if (isLogin) {
             try {
-                const data = await api.auth.login(formData.email, formData.password);
+                const data = await api.auth.login(formData.email, formData.password, cfToken);
                 const user = data?.user || data?.session?.user;
                 if (user) {
                     if (data?.session) {
@@ -88,11 +121,13 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         email: user.email,
                     });
                     window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
+                    resetTurnstile();
                     setPage('home');
                     return;
                 }
             } catch (error) {
                 setAuthMessage(error.message || 'Unable to login. Please check your credentials.');
+                resetTurnstile();
                 return;
             }
             return;
@@ -104,9 +139,9 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         }
 
         try {
-            const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate);
+            const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate, cfToken);
             if (data?.user) {
-                const loginData = await api.auth.login(formData.email, formData.password);
+                const loginData = await api.auth.login(formData.email, formData.password, cfToken);
                 const user = loginData?.user || loginData?.session?.user;
                 if (user && loginData?.session) {
                     await supabase.auth.setSession({
@@ -121,6 +156,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         email: user.email,
                     });
                     window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
+                    resetTurnstile();
                     setPage('home');
                     return;
                 }
@@ -129,6 +165,14 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         } catch (error) {
             setAuthMessage(error.message || 'Unable to create account.');
             return;
+        }
+        resetTurnstile();
+    };
+
+    const resetTurnstile = () => {
+        setCfToken('');
+        if (turnstileWidgetId.current) {
+            try { window.turnstile.reset(turnstileWidgetId.current); } catch {}
         }
     };
 
@@ -416,6 +460,9 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                                 </button>
                             </div>
                         )}
+
+                        {/* Turnstile CAPTCHA */}
+                        <div ref={turnstileRef} className="flex justify-center" />
 
                         {/* Submit */}
                         <button

@@ -10,7 +10,7 @@ export class AuthController {
   @Post('signup')
   @Throttle({ default: { limit: 500, ttl: 60000 } })
   async signUp(@Body() body: SignUpDto) {
-    return this.authService.signUp(body.email, body.password, {
+    return this.authService.signUp(body.email, body.password, body.cf_turnstile_token, {
       full_name: body.full_name,
       joiningDate: body.joiningDate,
     });
@@ -19,7 +19,7 @@ export class AuthController {
   @Post('login')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   async signIn(@Body() body: LoginDto) {
-    return this.authService.signIn(body.email, body.password);
+    return this.authService.signIn(body.email, body.password, body.cf_turnstile_token);
   }
 
   @Post('logout')
