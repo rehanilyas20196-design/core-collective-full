@@ -90,30 +90,35 @@ const InquiryForm = ({ userProfile }) => {
               className="w-full px-4 py-2 border border-shade-border rounded-md h-24 focus:ring-1 focus:ring-primary outline-none resize-none"
               required
             ></textarea>
-            <div className="flex flex-col sm:flex-row gap-4">
-               <input 
-                type="number"
-                min="1"
-                name="quantity"
-                placeholder="Quantity" 
-                value={formData.quantity}
-                onChange={handleChange}
-                className="flex-1 px-4 py-2 border border-shade-border rounded-md outline-none"
-                required
-              />
-               <label htmlFor="unit-select" className="sr-only">Unit</label>
-               <select
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs text-gray-500 font-medium mb-1 block">Qty</label>
+                <input
+                  type="number"
+                  min="1"
+                  name="quantity"
+                  placeholder="Quantity"
+                  value={formData.quantity}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-shade-border rounded-md outline-none"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="unit-select" className="text-xs text-gray-500 font-medium mb-1 block">Unit</label>
+                <select
                   id="unit-select"
                   name="unit"
                   value={formData.unit}
                   onChange={handleChange}
-                  className="px-4 py-2 border border-shade-border rounded-md bg-white outline-none sm:w-[120px]"
+                  className="w-full px-4 py-2 border border-shade-border rounded-md bg-white outline-none"
                 >
                   <option>Pcs</option>
                   <option>Kgs</option>
                   <option>Boxes</option>
                   <option>Sets</option>
                 </select>
+              </div>
             </div>
             <button
               type="submit"
