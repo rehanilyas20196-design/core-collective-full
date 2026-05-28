@@ -15,7 +15,7 @@ export class CartService {
     return data || [];
   }
 
-  async addOrUpdate(userId: string, productId: number, qty: number, productData: any) {
+  async addOrUpdate(userId: string, productId: number, qty: number, _productData: any) {
     const { data: existing } = await this.supabase
       .from('cart_items')
       .select('id, qty')
@@ -26,7 +26,7 @@ export class CartService {
     if (existing) {
       const { error } = await this.supabase
         .from('cart_items')
-        .update({ qty: existing.qty + qty, product_data: productData || {}, updated_at: new Date().toISOString() })
+        .update({ qty: existing.qty + qty, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
       if (error) throw new InternalServerErrorException(error.message);
       return { updated: true };
@@ -34,7 +34,7 @@ export class CartService {
 
     const { error } = await this.supabase
       .from('cart_items')
-      .insert([{ user_id: userId, product_id: productId, qty, product_data: productData || {} }]);
+      .insert([{ user_id: userId, product_id: productId, qty }]);
     if (error) throw new InternalServerErrorException(error.message);
     return { added: true };
   }

@@ -15,7 +15,7 @@ export class FavoritesService {
     return data || [];
   }
 
-  async toggle(userId: string, productId: number, productData: any) {
+  async toggle(userId: string, productId: number, _productData: any) {
     const { data: existing } = await this.supabase
       .from('favorites')
       .select('id')
@@ -34,15 +34,15 @@ export class FavoritesService {
 
     const { error } = await this.supabase
       .from('favorites')
-      .insert([{ user_id: userId, product_id: productId, product_data: productData || {} }]);
+      .insert([{ user_id: userId, product_id: productId }]);
     if (error) throw new InternalServerErrorException(error.message);
     return { favorited: true };
   }
 
-  async add(userId: string, productId: number, productData: any) {
+  async add(userId: string, productId: number, _productData: any) {
     const { error } = await this.supabase
       .from('favorites')
-      .insert([{ user_id: userId, product_id: productId, product_data: productData || {} }]);
+      .insert([{ user_id: userId, product_id: productId }]);
     if (error) throw new InternalServerErrorException(error.message);
     return { favorited: true };
   }
