@@ -514,7 +514,7 @@ function App() {
       </main>
 
       <Newsletter />
-      <Footer />
+      <Footer setPage={handleSetPage} />
 
       {showPromoModal && (
         <PromoModal

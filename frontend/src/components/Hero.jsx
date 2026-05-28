@@ -82,7 +82,7 @@ const Hero = ({ setPage }) => {
           <div className="absolute inset-0 bg-gradient-to-r from-white/60 via-white/40 to-transparent rounded-lg"></div>
 
           <div className="relative z-10 w-full sm:w-2/3 lg:w-1/2 animate-fadeIn">
-            <h3 className="text-xl sm:text-2xl font-normal text-dark mb-1">Latest trending</h3>
+            <h1 className="text-xl sm:text-2xl font-normal text-dark mb-1">Latest trending</h1>
             <h2 className="text-[28px] sm:text-[32px] font-bold text-dark leading-tight mb-6 uppercase tracking-tight">
               {categories[currentSlide] || 'Electronic items'}
             </h2>

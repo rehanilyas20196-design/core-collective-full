@@ -250,7 +250,7 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
         <main className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#1C1C1C]">{displayTitle}</h2>
+              <h1 className="text-xl sm:text-2xl font-bold text-[#1C1C1C]">{displayTitle}</h1>
               <p className="text-sm text-[#8B96A5]">
                 {currentProducts.length > 0 ? `${currentProducts.length} of ${filteredProducts.length}` : '0'} products {isFavoritesPage ? 'in wishlist' : 'found'}
               </p>
@@ -284,7 +284,7 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
             <>
               <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}>
                 {currentProducts.map((product) => (
-                  <div
+                  <article
                     key={product.id}
                     className={`bg-white border border-[#DEE2E7] rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer ${viewMode === 'list' ? 'flex flex-col md:flex-row' : ''}`}
                     onClick={() => setPage('details', product)}
@@ -428,7 +428,7 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
                         </button>
                       )}
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
 

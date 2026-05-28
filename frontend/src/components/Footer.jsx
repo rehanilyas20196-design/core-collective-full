@@ -2,7 +2,7 @@ import React from 'react';
 import { Facebook, Twitter, Linkedin, Instagram, Youtube, Apple, Play, ChevronUp } from 'lucide-react';
 import flagUS from '../assets/Layout1/Image/flags/US@2x.png';
 
-const Footer = () => {
+const Footer = ({ setPage }) => {
   return (
     <footer className="bg-white border-t border-shade-border pt-10 sm:pt-12">
       <div className="container pb-12">
@@ -26,37 +26,37 @@ const Footer = () => {
           <div className="lg:col-span-1">
             <h4 className="font-bold text-[#1C1C1C] mb-4">About</h4>
             <ul className="space-y-3 text-[#8B96A5] text-sm">
-              <li><a href="#" className="hover:text-primary transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Find store</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Categories</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Blogs</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">About Us</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">Find store</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">Categories</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">Blogs</a></li>
             </ul>
           </div>
           <div className="lg:col-span-2">
             <h4 className="font-bold text-[#1C1C1C] mb-4">Partnership</h4>
             <ul className="space-y-3 text-[#8B96A5] text-sm">
-              <li><a href="#" className="hover:text-primary transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Find store</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Categories</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Blogs</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">About Us</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">Find store</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">Categories</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('home'); }} className="hover:text-primary transition-colors">Blogs</a></li>
             </ul>
           </div>
           <div className="lg:col-span-2">
             <h4 className="font-bold text-[#1C1C1C] mb-4">Information</h4>
             <ul className="space-y-3 text-[#8B96A5] text-sm">
-              <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Money Refund</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Shipping</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Contact us</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('help-center'); }} className="hover:text-primary transition-colors">Help Center</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('returns-info'); }} className="hover:text-primary transition-colors">Money Refund</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('shipping-info'); }} className="hover:text-primary transition-colors">Shipping</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('contact-us'); }} className="hover:text-primary transition-colors">Contact us</a></li>
             </ul>
           </div>
           <div className="lg:col-span-2">
             <h4 className="font-bold text-[#1C1C1C] mb-4">For users</h4>
             <ul className="space-y-3 text-[#8B96A5] text-sm">
-              <li><a href="#" className="hover:text-primary transition-colors">Login</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Register</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Settings</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">My Orders</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('profile'); }} className="hover:text-primary transition-colors">Login</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('profile'); }} className="hover:text-primary transition-colors">Register</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('profile'); }} className="hover:text-primary transition-colors">Settings</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); setPage('orders'); }} className="hover:text-primary transition-colors">My Orders</a></li>
             </ul>
           </div>
 

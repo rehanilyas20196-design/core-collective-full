@@ -79,7 +79,7 @@ const ProductDetails = ({ setPage, handleBack, product, addToCart, toggleFavorit
             {/* Gallery Section */}
             <div className="lg:w-[450px] flex-shrink-0">
                <div className="border border-[#DEE2E7] rounded-lg p-4 sm:p-8 mb-4 flex items-center justify-center bg-[#F7F7F7] aspect-square overflow-hidden group">
-                   <img src={thumbnails[selectedThumb]} alt="Product" width="450" height="450" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                   <img src={thumbnails[selectedThumb]} alt={product?.name || 'Product'} width="450" height="450" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" />
                </div>
                <div className="flex gap-3 overflow-x-auto no-scrollbar">
                   {thumbnails.map((img, i) => (
