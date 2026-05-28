@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 
-const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
+const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', 'image/bmp', 'image/tiff', 'image/svg+xml'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 @Injectable()

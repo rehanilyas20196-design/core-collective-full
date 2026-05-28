@@ -30,10 +30,10 @@ export class SupabaseService {
   }
 
   from(table: string) {
-    return this.supabase.from(table);
+    return this.supabaseAdmin.from(table);
   }
 
   storage() {
-    return this.supabase.storage;
+    return this.supabaseAdmin.storage;
   }
 }

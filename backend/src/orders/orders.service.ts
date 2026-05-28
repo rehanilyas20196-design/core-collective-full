@@ -64,6 +64,18 @@ export class OrdersService {
       .insert([payload])
       .select();
     if (error) throw new InternalServerErrorException(error.message);
+
+    if (data && data.length > 0 && userId) {
+      const order = data[0];
+      await this.supabase.from('notifications').insert([{
+        user_id: userId,
+        type: 'pending',
+        title: 'Order Placed',
+        message: `Your order #ORD-${String(order.id).padStart(6, '0')} has been placed and is pending review. We will notify you once it is confirmed.`,
+        data: { order_id: order.id },
+      }]);
+    }
+
     return data;
   }
 
@@ -74,6 +86,24 @@ export class OrdersService {
       .eq('id', orderId)
       .select();
     if (error) throw new InternalServerErrorException(error.message);
+
+    if (data && data.length > 0 && data[0].user_id && (status === 'confirmed' || status === 'rejected')) {
+      const order = data[0];
+      const notifType = status === 'confirmed' ? 'success' : 'error';
+      const notifTitle = status === 'confirmed' ? 'Order Confirmed' : 'Order Rejected';
+      const notifMessage = status === 'confirmed'
+        ? `Your order #ORD-${String(order.id).padStart(6, '0')} has been confirmed! Thank you for your purchase.`
+        : `Your order #ORD-${String(order.id).padStart(6, '0')} has been rejected. Please contact support for more details.`;
+
+      await this.supabase.from('notifications').insert([{
+        user_id: order.user_id,
+        type: notifType,
+        title: notifTitle,
+        message: notifMessage,
+        data: { order_id: order.id },
+      }]);
+    }
+
     return data;
   }
 

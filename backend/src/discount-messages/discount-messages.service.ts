@@ -40,6 +40,24 @@ export class DiscountMessagesService {
       .eq('id', id)
       .select();
     if (error) throw new InternalServerErrorException(error.message);
+
+    if (data && data.length > 0 && data[0].user_id && (status === 'approved' || status === 'rejected')) {
+      const msg = data[0];
+      const notifType = status === 'approved' ? 'success' : 'error';
+      const notifTitle = status === 'approved' ? 'Discount Request Approved' : 'Discount Request Rejected';
+      const notifMessage = status === 'approved'
+        ? `Your discount request has been approved! Reply: ${adminReply || 'N/A'}`
+        : `Your discount request has been rejected. Reply: ${adminReply || 'N/A'}`;
+
+      await this.supabase.from('notifications').insert([{
+        user_id: msg.user_id,
+        type: notifType,
+        title: notifTitle,
+        message: notifMessage,
+        data: { discount_message_id: msg.id },
+      }]);
+    }
+
     return data;
   }
 

@@ -58,6 +58,24 @@ export class SupplierInquiriesService {
       .eq('id', id)
       .select();
     if (error) throw new InternalServerErrorException(error.message);
+
+    if (data && data.length > 0 && data[0].user_id && (status === 'approved' || status === 'rejected')) {
+      const inquiry = data[0];
+      const notifType = status === 'approved' ? 'success' : 'error';
+      const notifTitle = status === 'approved' ? 'Supplier Quote Approved' : 'Supplier Quote Rejected';
+      const notifMessage = status === 'approved'
+        ? `Your supplier inquiry for "${inquiry.item_name}" has been approved. Reference: ${supplierRef || 'N/A'}`
+        : `Your supplier inquiry for "${inquiry.item_name}" has been rejected. Notes: ${adminNotes || 'N/A'}`;
+
+      await this.supabase.from('notifications').insert([{
+        user_id: inquiry.user_id,
+        type: notifType,
+        title: notifTitle,
+        message: notifMessage,
+        data: { inquiry_id: inquiry.id },
+      }]);
+    }
+
     return data;
   }
 
