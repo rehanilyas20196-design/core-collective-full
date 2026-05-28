@@ -24,6 +24,10 @@ export class SignUpDto {
 
   @IsOptional()
   @IsString()
+  date_of_birth?: string;
+
+  @IsOptional()
+  @IsString()
   cf_turnstile_token?: string;
 }
 

@@ -114,6 +114,25 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let initialized = false;
+
+    const onUserReady = (user) => {
+      if (initialized) return;
+      initialized = true;
+      const profile = {
+        id: user.id,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email,
+        phone: user.user_metadata?.phone || '',
+        date_of_birth: user.user_metadata?.date_of_birth || '',
+      };
+      setUserProfile(profile);
+      setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
+      loadCart(user.id);
+      loadFavorites(user.id);
+      loadNotifications(user.id);
+    };
+
     (async () => {
       const { data } = await supabase.auth.getSession();
       const session = data?.session;
@@ -124,17 +143,16 @@ function App() {
         await supabase.auth.signOut();
         return;
       }
-      const profile = {
-        id: user.id,
-        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-        email: user.email
-      };
-      setUserProfile(profile);
-      setIsAdmin(user.email === 'rehanilyas20196@gmail.com');
-      loadCart(user.id);
-      loadFavorites(user.id);
-      loadNotifications(user.id);
+      onUserReady(user);
     })();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION' && session?.user) {
+        onUserReady(session.user);
+      }
+    });
+
+    return () => listener?.subscription?.unsubscribe();
   }, [loadCart, loadFavorites, loadNotifications]);
 
   useEffect(() => {
@@ -144,7 +162,9 @@ function App() {
         const profile = {
           id: user.id,
           name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          email: user.email
+          email: user.email,
+          phone: user.user_metadata?.phone || '',
+          date_of_birth: user.user_metadata?.date_of_birth || '',
         };
         setUserProfile(profile);
         setIsAdmin(user.email === 'rehanilyas20196@gmail.com');

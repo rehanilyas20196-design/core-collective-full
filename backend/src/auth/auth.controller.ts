@@ -14,6 +14,7 @@ export class AuthController {
       full_name: body.full_name,
       joiningDate: body.joiningDate,
       phone: body.phone,
+      date_of_birth: body.date_of_birth,
     });
   }
 
