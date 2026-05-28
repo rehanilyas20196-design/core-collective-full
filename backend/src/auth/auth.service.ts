@@ -31,7 +31,7 @@ export class AuthService {
     }
   }
 
-  async signUp(email: string, password: string, cfTurnstileToken: string, metadata?: { full_name?: string; joiningDate?: string }) {
+  async signUp(email: string, password: string, cfTurnstileToken?: string, metadata?: { full_name?: string; joiningDate?: string }) {
     await this.verifyTurnstile(cfTurnstileToken);
     const { data, error } = await this.supabase.auth.signUp({
       email,
@@ -56,7 +56,7 @@ export class AuthService {
     return data;
   }
 
-  async signIn(email: string, password: string, cfTurnstileToken: string) {
+  async signIn(email: string, password: string, cfTurnstileToken?: string) {
     await this.verifyTurnstile(cfTurnstileToken);
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
