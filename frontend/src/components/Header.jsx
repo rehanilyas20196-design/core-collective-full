@@ -68,16 +68,16 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
     };
   }, []);
   return (
-    <header className="bg-white border-b border-shade-border lg:sticky top-0 z-50 shadow-sm">
+    <header className="bg-white border-b border-gray-200 lg:sticky top-0 z-50 shadow-sm">
       {/* Top Header */}
       <div className="container py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center justify-center lg:justify-start gap-6 w-full lg:w-auto">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setPage('home')}>
-            <span className="text-primary font-bold text-lg sm:text-xl">Core Collective</span>
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setPage('home')}>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-500 font-bold text-lg sm:text-xl group-hover:from-primary-600 group-hover:to-primary transition-all duration-300">Core Collective</span>
           </div>
         </div>
 
-        <div className="w-full lg:flex-1 lg:max-w-2xl flex flex-col sm:flex-row border-2 border-primary rounded-lg" role="search">
+        <div className="w-full lg:flex-1 lg:max-w-2xl flex flex-col sm:flex-row border-2 border-primary rounded-xl overflow-hidden shadow-sm focus-within:shadow-md focus-within:border-primary-500 transition-all duration-200" role="search">
           <label htmlFor="header-search" className="sr-only">Search products</label>
           <input
             id="header-search"
@@ -91,23 +91,22 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
                 setPage('listing', { category: null, query: searchText.trim() });
               }
             }}
-            className="flex-1 px-4 py-3 sm:py-2 outline-none min-w-0 rounded-t-lg sm:rounded-l-lg sm:rounded-tr-none"
+            className="flex-1 px-4 py-3 sm:py-2.5 outline-none min-w-0 rounded-t-lg sm:rounded-l-lg sm:rounded-tr-none text-sm"
             aria-label="Search products"
           />
           <div className="relative" ref={dropdownRef}>
             <div
-              className="flex items-center sm:border-l px-4 py-2 bg-white cursor-pointer hover:bg-gray-50 h-full"
+              className="flex items-center sm:border-l border-gray-200 px-4 py-2.5 bg-white cursor-pointer hover:bg-gray-50 h-full text-sm"
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
             >
-              <span className="text-sm">All Categories</span>
-              <ChevronDown className="w-4 h-4 ml-2" />
+              <span className="text-gray-600">All Categories</span>
+              <ChevronDown className={`w-4 h-4 ml-2 text-gray-400 transition-transform duration-200 ${showCategoryDropdown ? 'rotate-180' : ''}`} />
             </div>
-            {showCategoryDropdown && (
-              <div className="absolute top-full left-0 mt-1 w-full sm:w-48 bg-gray-50 border border-gray-200 rounded-md shadow-lg z-10 max-h-[50vh] overflow-y-auto">
+            {showCategoryDropdown && <div className="absolute top-full left-0 mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-lg shadow-elevated z-10 max-h-[50vh] overflow-y-auto animate-scale-in origin-top"><div className="py-1">
                 {categories.map((cat, index) => (
                   <div
                     key={index}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    className="px-4 py-2.5 hover:bg-gray-50 hover:text-primary cursor-pointer text-sm transition-colors"
                     onClick={() => {
                       setShowCategoryDropdown(false);
                       setPage('listing', { category: cat });
@@ -116,11 +115,10 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
                     {cat}
                   </div>
                 ))}
-              </div>
-            )}
+              </div></div>}
           </div>
           <button
-            className="bg-primary hover:bg-primary-dark text-white px-6 sm:px-8 py-3 sm:py-2 font-medium transition-colors w-full sm:w-auto rounded-b-lg sm:rounded-r-lg sm:rounded-bl-none"
+            className="bg-primary hover:bg-primary-700 text-white px-6 sm:px-8 py-3 sm:py-2.5 font-semibold transition-all duration-200 w-full sm:w-auto rounded-b-lg sm:rounded-r-lg sm:rounded-bl-none hover:shadow-md active:scale-[0.98]"
             onClick={() => setPage('listing', { category: null, query: searchText.trim() })}
             aria-label="Search products"
           >
@@ -129,28 +127,28 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
         </div>
 
         <div className="grid grid-cols-4 sm:flex items-start sm:items-center gap-4 sm:gap-6 w-full lg:w-auto">
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors min-w-0" onClick={() => setPage('profile')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('profile'); }} aria-label={userProfile ? `Profile: ${userProfile.name}` : 'Profile'}>
-            <User className="w-5 h-5 mb-1" />
+          <div className="flex flex-col items-center cursor-pointer text-gray-500 hover:text-primary transition-all duration-200 min-w-0 group" onClick={() => setPage('profile')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('profile'); }} aria-label={userProfile ? `Profile: ${userProfile.name}` : 'Profile'}>
+            <User className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" />
             <span className="text-[11px] sm:text-xs text-center truncate max-w-full">{userProfile ? (userProfile.name || 'Profile') : 'Profile'}</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors min-w-0" onClick={() => setPage('message')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('message'); }} aria-label="Messages">
-            <MessageSquare className="w-5 h-5 mb-1" />
+          <div className="flex flex-col items-center cursor-pointer text-gray-500 hover:text-primary transition-all duration-200 min-w-0 group" onClick={() => setPage('message')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('message'); }} aria-label="Messages">
+            <MessageSquare className="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200" />
             <span className="text-[11px] sm:text-xs text-center">Message</span>
           </div>
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors relative min-w-0" onClick={() => setPage('favorites')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('favorites'); }} aria-label={`Favorites${favoritesCount > 0 ? `, ${favoritesCount} items` : ''}`}>
-            <Heart className="w-5 h-5 mb-1" />
+          <div className="flex flex-col items-center cursor-pointer text-gray-500 hover:text-primary transition-all duration-200 relative min-w-0 group" onClick={() => setPage('favorites')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('favorites'); }} aria-label={`Favorites${favoritesCount > 0 ? `, ${favoritesCount} items` : ''}`}>
+            <Heart className={`w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200 ${favoritesCount > 0 ? 'fill-primary text-primary' : ''}`} />
             <span className="text-[11px] sm:text-xs text-center">Favorites</span>
             {favoritesCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm" aria-hidden="true">
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm animate-scale-in" aria-hidden="true">
                 {favoritesCount}
               </span>
             )}
           </div>
-          <div className="flex flex-col items-center cursor-pointer text-secondary hover:text-primary transition-colors relative min-w-0" onClick={() => setPage('cart')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('cart'); }} aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}>
-            <ShoppingCart className="w-5 h-5 mb-1" />
+          <div className="flex flex-col items-center cursor-pointer text-gray-500 hover:text-primary transition-all duration-200 relative min-w-0 group" onClick={() => setPage('cart')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('cart'); }} aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}>
+            <ShoppingCart className={`w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200 ${cartCount > 0 ? 'text-success' : ''}`} />
             <span className="text-[11px] sm:text-xs text-center">My cart</span>
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#00B517] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm" aria-hidden="true">
+              <span className="absolute -top-1 -right-1 bg-success text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm animate-scale-in" aria-hidden="true">
                 {cartCount}
               </span>
             )}
@@ -159,21 +157,21 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
       </div>
 
       {/* Bottom Header */}
-      <div className="border-t border-shade-border bg-white lg:overflow-visible no-scrollbar">
+      <div className="border-t border-gray-200 bg-white lg:overflow-visible no-scrollbar">
         <div className="container py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between whitespace-nowrap gap-3 sm:gap-4">
-          <nav className="flex flex-wrap items-center gap-4 sm:gap-6 font-medium text-dark text-sm sm:text-base w-full pb-1 sm:pb-0">
-            <div className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors" onClick={() => setPage('listing')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('listing'); }} aria-label="All categories">
+          <nav className="flex flex-wrap items-center gap-4 sm:gap-6 font-medium text-gray-700 text-sm sm:text-base w-full pb-1 sm:pb-0">
+            <div className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors duration-200" onClick={() => setPage('listing')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('listing'); }} aria-label="All categories">
               <Menu className="w-5 h-5" />
               <span>All Categories</span>
             </div>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('home'); }} aria-label="Go to home page">Home</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('hot-offers'); }} aria-label="View hot offers">Hot Offers</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('gift-boxes'); }} aria-label="View gift boxes">Gift Boxes</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('projects'); }} aria-label="View projects">Projects</a>
-            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('menu-items'); }} aria-label="View menu items">Menu Items</a>
+            <a href="#" className="hover:text-primary transition-colors duration-200" onClick={(e) => { e.preventDefault(); setPage('home'); }} aria-label="Go to home page">Home</a>
+            <a href="#" className="hover:text-primary transition-colors duration-200" onClick={(e) => { e.preventDefault(); setPage('hot-offers'); }} aria-label="View hot offers">Hot Offers</a>
+            <a href="#" className="hover:text-primary transition-colors duration-200" onClick={(e) => { e.preventDefault(); setPage('gift-boxes'); }} aria-label="View gift boxes">Gift Boxes</a>
+            <a href="#" className="hover:text-primary transition-colors duration-200" onClick={(e) => { e.preventDefault(); setPage('projects'); }} aria-label="View projects">Projects</a>
+            <a href="#" className="hover:text-primary transition-colors duration-200" onClick={(e) => { e.preventDefault(); setPage('menu-items'); }} aria-label="View menu items">Menu Items</a>
             {isAdmin && (
               <span
-                className="bg-primary/10 text-primary px-3 py-1 rounded-md font-bold cursor-pointer hover:bg-primary/20 transition-all border border-primary/20 flex items-center"
+                className="badge-primary cursor-pointer font-bold flex items-center"
                 onClick={() => setPage('admin')}
               >
                 Admin
@@ -181,53 +179,55 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
             )}
             <div className="relative" ref={helpRef}>
               <div
-                className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors"
+                className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors duration-200"
                 onClick={() => setShowHelpDropdown(!showHelpDropdown)}
               >
                 <span>Help</span>
-                <ChevronDown className={`w-4 h-4 transform transition-transform ${showHelpDropdown ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${showHelpDropdown ? 'rotate-180' : ''}`} />
               </div>
               {showHelpDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-[50vh] overflow-y-auto">
-                  {helpItems.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2 transition-colors"
-                      onClick={() => {
-                        setShowHelpDropdown(false);
-                        if (idx === 0) setPage('help-center');
-                        else if (idx === 1) setPage('contact-us');
-                        else if (idx === 2) setPage('shipping-info');
-                        else if (idx === 3) setPage('returns-info');
-                        else setPage('faq');
-                      }}
-                    >
-                      {idx === 0 && <HelpCircle className="w-4 h-4" />}
-                      {idx === 1 && <MessageSquare className="w-4 h-4" />}
-                      {idx === 2 && <Truck className="w-4 h-4" />}
-                      {idx === 3 && <RotateCcw className="w-4 h-4" />}
-                      {idx === 4 && <HelpCircle className="w-4 h-4" />}
-                      <span>{item}</span>
-                    </div>
-                  ))}
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-elevated z-20 max-h-[50vh] overflow-y-auto animate-scale-in origin-top">
+                  <div className="py-1">
+                    {helpItems.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="px-4 py-2.5 hover:bg-gray-50 hover:text-primary cursor-pointer text-sm flex items-center gap-2 transition-colors duration-200"
+                        onClick={() => {
+                          setShowHelpDropdown(false);
+                          if (idx === 0) setPage('help-center');
+                          else if (idx === 1) setPage('contact-us');
+                          else if (idx === 2) setPage('shipping-info');
+                          else if (idx === 3) setPage('returns-info');
+                          else setPage('faq');
+                        }}
+                      >
+                        {idx === 0 && <HelpCircle className="w-4 h-4 text-gray-400" />}
+                        {idx === 1 && <MessageSquare className="w-4 h-4 text-gray-400" />}
+                        {idx === 2 && <Truck className="w-4 h-4 text-gray-400" />}
+                        {idx === 3 && <RotateCcw className="w-4 h-4 text-gray-400" />}
+                        {idx === 4 && <HelpCircle className="w-4 h-4 text-gray-400" />}
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </nav>
 
-          <div className="flex items-center justify-end gap-4 sm:gap-6 font-medium text-dark w-full sm:w-auto text-sm sm:text-base">
+          <div className="flex items-center justify-end gap-4 sm:gap-6 font-medium text-gray-700 w-full sm:w-auto text-sm sm:text-base">
             {/* Notification Bell */}
             <div
-              className="relative cursor-pointer hover:text-primary transition-colors group"
+              className="relative cursor-pointer hover:text-primary transition-colors duration-200 group"
               onClick={() => setPage('notifications')}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => { if (e.key === 'Enter') setPage('notifications'); }}
               aria-label={`Notifications${confirmedOrdersCount > 0 ? `, ${confirmedOrdersCount} unread` : ''}`}
             >
-              <Bell className="w-5 h-5 text-secondary group-hover:text-primary transition-colors" />
+              <Bell className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors duration-200 group-hover:scale-110 transition-transform" />
               {confirmedOrdersCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#FA3434] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm border border-white" aria-hidden="true">
+                <span className="absolute -top-1.5 -right-1.5 bg-danger text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm border border-white animate-scale-in" aria-hidden="true">
                   {confirmedOrdersCount}
                 </span>
               )}
@@ -235,7 +235,7 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
 
             <div className="relative" ref={shipToRef}>
               <div
-                className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors"
+                className="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors duration-200"
                 onClick={() => setShowShipToDropdown(!showShipToDropdown)}
               >
                 <span>Ship to</span>
@@ -244,23 +244,25 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
                 ) : (
                   <span className="text-sm font-medium">{selectedCountry.code}</span>
                 )}
-                <ChevronDown className={`w-4 h-4 text-secondary transform transition-transform ${showShipToDropdown ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-gray-400 transform transition-transform duration-200 ${showShipToDropdown ? 'rotate-180' : ''}`} />
               </div>
               {showShipToDropdown && (
-                <div className="absolute top-full left-0 sm:right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-[50vh] overflow-y-auto">
-                  {countries.map((country, idx) => (
-                    <div
-                      key={idx}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2 transition-colors"
-                      onClick={() => {
-                        setSelectedCountry(country);
-                        setShowShipToDropdown(false);
-                      }}
-                    >
-                      {country.flag && <img src={country.flag} alt={country.code} className="w-5 h-3 rounded-sm shadow-sm" />}
-                      <span>{country.name}</span>
-                    </div>
-                  ))}
+                <div className="absolute top-full left-0 sm:right-0 mt-2 w-40 bg-white border border-gray-200 rounded-xl shadow-elevated z-20 max-h-[50vh] overflow-y-auto animate-scale-in origin-top">
+                  <div className="py-1">
+                    {countries.map((country, idx) => (
+                      <div
+                        key={idx}
+                        className="px-4 py-2.5 hover:bg-gray-50 hover:text-primary cursor-pointer text-sm flex items-center gap-2 transition-colors duration-200"
+                        onClick={() => {
+                          setSelectedCountry(country);
+                          setShowShipToDropdown(false);
+                        }}
+                      >
+                        {country.flag && <img src={country.flag} alt={country.code} className="w-5 h-3 rounded-sm shadow-sm" />}
+                        <span>{country.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

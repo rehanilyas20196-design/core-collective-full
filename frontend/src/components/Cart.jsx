@@ -73,26 +73,26 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
     if (cartItems.length === 0) {
         return (
             <div className="container py-6">
-                <h1 className="text-xl sm:text-2xl font-bold text-[#1C1C1C] mb-6">My cart (0)</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">My cart (0)</h1>
 
-                <div className="bg-white border border-[#DEE2E7] rounded-lg p-6 sm:p-12 text-center">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                        <ShoppingCart size={40} className="text-[#8B96A5]" />
+                <div className="card-lg p-6 sm:p-12 text-center">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                        <ShoppingCart size={40} className="text-gray-400" />
                     </div>
-                    <h2 className="text-xl font-semibold text-[#1C1C1C] mb-2">Your cart is empty</h2>
-                    <p className="text-[#8B96A5] mb-6">Looks like you haven't added anything to your cart yet.</p>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h2>
+                    <p className="text-gray-500 mb-6">Looks like you haven't added anything to your cart yet.</p>
                     <button
-                        className="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold hover:bg-primary-dark transition-colors mx-auto"
+                        className="btn-primary inline-flex items-center gap-2 mx-auto"
                         onClick={handleBack}
                     >
                         <ArrowLeft size={18} />
                         Back
                     </button>
 
-                    <div className="mt-8 pt-6 border-t border-[#DEE2E7]">
+                    <div className="mt-8 pt-6 border-t border-gray-200">
                         <button
                             onClick={() => setShowDiscountForm(!showDiscountForm)}
-                            className="text-primary font-medium hover:underline flex items-center gap-2 mx-auto"
+                            className="text-primary font-medium hover:underline inline-flex items-center gap-2"
                         >
                             <Tag size={18} />
                             Request a discount
@@ -103,13 +103,13 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                                     value={discountMsg}
                                     onChange={(e) => setDiscountMsg(e.target.value)}
                                     placeholder="Tell us about the discount you're looking for..."
-                                    className="w-full px-4 py-2 border border-[#DEE2E7] rounded-lg text-sm outline-none focus:border-primary resize-none h-24"
+                                    className="input-field resize-none h-24"
                                     required
                                 />
                                 <button
                                     type="submit"
                                     disabled={discountSending}
-                                    className="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-60"
+                                    className="btn-primary"
                                 >
                                     {discountSending ? 'Sending...' : 'Send Request'}
                                 </button>
@@ -123,35 +123,35 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
 
     return (
         <div className="container py-6">
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1C1C1C] mb-6">My cart ({cartItems.length})</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">My cart ({cartItems.length})</h1>
 
             <div className="flex flex-col lg:flex-row gap-8">
                 <div className="flex-1 space-y-4">
-                    <div className="bg-white border border-[#DEE2E7] rounded-lg overflow-hidden">
+                    <div className="card-lg">
                         {cartItems.map((item, index) => (
-                            <div key={item.id} className={`p-4 lg:p-6 flex flex-col sm:flex-row gap-4 lg:gap-6 ${index !== cartItems.length - 1 ? 'border-b border-[#DEE2E7]' : ''}`}>
-                                <div className="w-[80px] h-[80px] lg:w-[100px] lg:h-[100px] border border-[#DEE2E7] rounded-lg p-3 flex items-center justify-center bg-[#F7F7F7] flex-shrink-0 group overflow-hidden">
+                            <div key={item.id} className={`p-4 lg:p-6 flex flex-col sm:flex-row gap-4 lg:gap-6 ${index !== cartItems.length - 1 ? 'border-b border-gray-200' : ''}`}>
+                                <div className="w-20 h-20 lg:w-24 lg:h-24 border border-gray-200 rounded-xl p-3 flex items-center justify-center bg-gray-50 flex-shrink-0 group overflow-hidden">
                                     <img src={item.image || item.image_url} alt={item.title || item.name} width="100" height="100" loading="lazy" className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300" />
                                 </div>
 
                                 <div className="flex-1 flex flex-col md:flex-row justify-between gap-4">
                                     <div className="space-y-1.5 min-w-0">
-                                        <h3 className="font-semibold text-[#1C1C1C] hover:text-primary cursor-pointer transition-colors max-w-md">{item.title || item.name}</h3>
-                                        <div className="text-[#8B96A5] text-sm space-y-0.5">
+                                        <h3 className="font-semibold text-gray-900 hover:text-primary cursor-pointer transition-colors max-w-md line-clamp-2">{item.title || item.name}</h3>
+                                        <div className="text-gray-500 text-sm space-y-0.5">
                                             <p>{item.specs || item.description || item.category}</p>
                                             <p>Seller: {item.seller}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2 pt-2">
                                             <button
                                                 onClick={() => removeItem(item.id)}
-                                                className="px-3 py-1.5 border border-[#DEE2E7] rounded-md text-[#FA3434] text-xs font-semibold hover:bg-[#FFF0F0] transition-colors flex items-center gap-1.5"
+                                                className="btn-danger flex items-center gap-1.5"
                                             >
                                                 <Trash2 size={14} />
                                                 Remove
                                             </button>
                                             <button
                                                 onClick={() => saveForLater(item)}
-                                                className="px-3 py-1.5 border border-[#DEE2E7] rounded-md text-primary text-xs font-semibold hover:bg-shade transition-colors flex items-center gap-1.5"
+                                                className="px-3 py-1.5 border border-gray-200 rounded-md text-primary text-xs font-semibold hover:bg-gray-50 transition-colors flex items-center gap-1.5"
                                             >
                                                 <Heart size={14} />
                                                 Save for later
@@ -160,11 +160,11 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                                     </div>
 
                                     <div className="flex flex-row sm:flex-col sm:items-end justify-between gap-3 min-w-[120px]">
-                                        <span className="text-lg font-bold text-[#1C1C1C]">Rs. {(item.price * (item.qty || 1)).toFixed(2)}</span>
-                                        <div className="flex items-center gap-1 border border-[#DEE2E7] rounded-md bg-white">
+                                        <span className="text-lg font-bold text-gray-900">Rs. {(item.price * (item.qty || 1)).toFixed(2)}</span>
+                                        <div className="flex items-center gap-1 border border-gray-200 rounded-lg bg-white shadow-sm">
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); updateQty(item, (item.qty || 1) - 1); }}
-                                                className="px-2 py-1.5 hover:bg-gray-100 rounded-l-md transition-colors text-[#505050] disabled:opacity-30"
+                                                className="px-2.5 py-1.5 hover:bg-gray-100 rounded-l-lg transition-colors text-gray-600 disabled:opacity-30"
                                                 disabled={(item.qty || 1) <= 1}
                                             >
                                                 <Minus size={14} />
@@ -172,7 +172,7 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                                             <span className="px-2 py-1.5 text-sm font-medium min-w-[28px] text-center">{item.qty || 1}</span>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); updateQty(item, (item.qty || 1) + 1); }}
-                                                className="px-2 py-1.5 hover:bg-gray-100 rounded-r-md transition-colors text-[#505050]"
+                                                className="px-2.5 py-1.5 hover:bg-gray-100 rounded-r-lg transition-colors text-gray-600"
                                             >
                                                 <Plus size={14} />
                                             </button>
@@ -183,9 +183,9 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                         ))}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white p-4 rounded-lg border border-[#DEE2E7]">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                         <button
-                            className="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-lg font-bold hover:bg-primary-dark transition-colors"
+                            className="btn-primary inline-flex items-center gap-2"
                             onClick={handleBack}
                         >
                             <ArrowLeft size={18} />
@@ -194,7 +194,7 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
 
                         <button
                             onClick={removeAllItems}
-                            className="text-[#FA3434] font-bold hover:underline flex items-center gap-2"
+                            className="text-danger font-semibold hover:text-red-700 transition-colors inline-flex items-center gap-2"
                         >
                             <Trash2 size={16} />
                             Remove all
@@ -202,17 +202,17 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                     </div>
 
                     {savedForLater.length > 0 && (
-                        <div className="bg-white border border-[#DEE2E7] rounded-lg p-5">
-                            <h3 className="font-bold text-[#1C1C1C] mb-4">Saved for later ({savedForLater.length})</h3>
+                        <div className="card-lg p-5">
+                            <h3 className="font-bold text-gray-900 mb-4">Saved for later ({savedForLater.length})</h3>
                             <div className="space-y-3">
                                 {savedForLater.map((item) => (
-                                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 border border-[#DEE2E7] rounded-lg">
-                                        <img src={item.image || item.image_url} alt={item.title || item.name} width="64" height="64" loading="lazy" className="w-16 h-16 object-contain rounded" />
+                                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 border border-gray-200 rounded-xl">
+                                        <img src={item.image || item.image_url} alt={item.title || item.name} width="64" height="64" loading="lazy" className="w-16 h-16 object-contain rounded-lg" />
                                         <div className="flex-1">
                                             <h4 className="font-semibold text-sm">{item.title || item.name}</h4>
-                                            <p className="text-[#8B96A5] text-sm">Seller: {item.seller}</p>
+                                            <p className="text-gray-500 text-sm">Seller: {item.seller}</p>
                                         </div>
-                                        <span className="font-bold">Rs. {item.price.toFixed(2)}</span>
+                                        <span className="font-bold text-gray-900">Rs. {item.price.toFixed(2)}</span>
                                         <button
                                             onClick={() => moveToCart(item)}
                                             className="text-primary text-sm font-semibold hover:underline self-start sm:self-auto"
@@ -227,75 +227,75 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
 
                     <div className="flex flex-wrap gap-6 py-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#DEE2E7] flex items-center justify-center text-[#8B96A5]">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                                 <ShieldCheck size={20} />
                             </div>
                             <div className="flex flex-col">
-                                <p className="text-[#1C1C1C] font-semibold text-sm">Secure Payment</p>
-                                <p className="text-[#8B96A5] text-xs">100% secure payment</p>
+                                <p className="text-gray-800 font-semibold text-sm">Secure Payment</p>
+                                <p className="text-gray-500 text-xs">100% secure payment</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#DEE2E7] flex items-center justify-center text-[#8B96A5]">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                                 <MessageSquare size={20} />
                             </div>
                             <div className="flex flex-col">
-                                <p className="text-[#1C1C1C] font-semibold text-sm">Customer Support</p>
-                                <p className="text-[#8B96A5] text-xs">24/7 support available</p>
+                                <p className="text-gray-800 font-semibold text-sm">Customer Support</p>
+                                <p className="text-gray-500 text-xs">24/7 support available</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-[#DEE2E7] flex items-center justify-center text-[#8B96A5]">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                                 <Truck size={20} />
                             </div>
                             <div className="flex flex-col">
-                                <p className="text-[#1C1C1C] font-semibold text-sm">Free Delivery</p>
-                                <p className="text-[#8B96A5] text-xs">On orders over $100</p>
+                                <p className="text-gray-800 font-semibold text-sm">Free Delivery</p>
+                                <p className="text-gray-500 text-xs">On orders over $100</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="lg:w-[280px] space-y-4">
-                    <div className="bg-white border border-[#DEE2E7] rounded-lg p-4 sm:p-5">
-                        <p className="text-[#505050] text-sm mb-3">Have a coupon?</p>
-                        <div className="flex border border-[#DEE2E7] rounded-md overflow-hidden">
+                    <div className="card-lg p-4 sm:p-5">
+                        <p className="text-gray-600 text-sm mb-3">Have a coupon?</p>
+                        <div className="flex border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all duration-200">
                             <input type="text" placeholder="Add coupon" className="flex-1 px-3 py-2 outline-none text-sm" />
-                            <button className="bg-white border-l border-[#DEE2E7] px-4 py-2 text-primary font-bold text-sm hover:bg-shade transition-colors">Apply</button>
+                            <button className="bg-white border-l border-gray-200 px-4 py-2 text-primary font-semibold text-sm hover:bg-gray-50 transition-colors">Apply</button>
                         </div>
                     </div>
 
-                    <div className="bg-white border border-[#DEE2E7] rounded-lg p-4 sm:p-5 shadow-sm">
+                    <div className="card-lg p-4 sm:p-5">
                         <div className="space-y-3 mb-4">
-                            <div className="flex justify-between text-[#505050]">
+                            <div className="flex justify-between text-gray-600">
                                 <span>Items Total ({cartItems.reduce((s, i) => s + (i.qty || 1), 0)} items)</span>
                                 <span>Rs. {total}</span>
                             </div>
-                            <div className="flex justify-between text-[#FA3434]">
+                            <div className="flex justify-between text-danger">
                                 <span>Discount:</span>
                                 <span>- Rs. {discount.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between text-[#00B517]">
+                            <div className="flex justify-between text-success">
                                 <span>Tax:</span>
                                 <span>+ Rs. {tax.toFixed(2)}</span>
                             </div>
                         </div>
 
-                        <div className="h-[1px] bg-[#DEE2E7] mb-4"></div>
+                        <div className="h-px bg-gray-200 mb-4"></div>
 
-                        <div className="flex justify-between text-lg font-bold text-[#1C1C1C] mb-6">
+                        <div className="flex justify-between text-lg font-bold text-gray-900 mb-6">
                             <span>Total:</span>
                             <span>Rs. {total.toFixed(2)}</span>
                         </div>
 
                         <button
-                            className="w-full bg-[#00B517] hover:bg-[#00A015] text-white py-4 rounded-lg font-bold text-lg transition-colors shadow-lg"
+                            className="w-full bg-success hover:bg-green-600 text-white py-4 rounded-xl font-bold text-lg transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]"
                             onClick={() => setPage('checkout', { total: total.toFixed(2) })}
                         >
                             Checkout
                         </button>
 
-                        <div className="mt-4 flex flex-wrap justify-center gap-2 opacity-60">
+                        <div className="mt-4 flex flex-wrap justify-center gap-2 opacity-50">
                             <div className="w-8 h-5 bg-gray-200 rounded"></div>
                             <div className="w-8 h-5 bg-gray-200 rounded"></div>
                             <div className="w-8 h-5 bg-gray-200 rounded"></div>
