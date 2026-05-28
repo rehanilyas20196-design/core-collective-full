@@ -38,6 +38,7 @@ export class AuthService {
       password,
       options: {
         data: metadata || {},
+        captchaToken: cfTurnstileToken,
       },
     });
 
@@ -61,6 +62,9 @@ export class AuthService {
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email,
       password,
+      options: {
+        captchaToken: cfTurnstileToken,
+      },
     });
 
     if (error) throw new UnauthorizedException(error.message);
