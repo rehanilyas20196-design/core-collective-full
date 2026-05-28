@@ -20,6 +20,10 @@ export class SignUpDto {
 
   @IsOptional()
   @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
   cf_turnstile_token?: string;
 }
 

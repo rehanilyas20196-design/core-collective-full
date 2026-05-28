@@ -14,7 +14,8 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         email: '',
         password: '',
         confirmPassword: '',
-        joiningDate: new Date().toISOString().split('T')[0]
+        joiningDate: new Date().toISOString().split('T')[0],
+        phone: ''
     });
     const [cfToken, setCfToken] = useState('');
     const turnstileRef = useRef(null);
@@ -65,6 +66,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
     useEffect(() => {
         if (userProfile) {
             setAccountName(userProfile.name || '');
+            setPhoneNumber(userProfile.phone || '');
         }
     }, [userProfile]);
 
@@ -127,6 +129,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         id: user.id,
                         name: user.user_metadata?.full_name || formData.email.split('@')[0],
                         email: user.email,
+                        phone: user.user_metadata?.phone || '',
                     });
                     window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
                     resetTurnstile();
@@ -147,7 +150,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         }
 
         try {
-            const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate, cfToken);
+            const data = await api.auth.signup(formData.email, formData.password, formData.name, formData.joiningDate, formData.phone, cfToken);
             if (data?.user) {
                 const loginData = await api.auth.login(formData.email, formData.password, cfToken);
                 const user = loginData?.user || loginData?.session?.user;
@@ -162,6 +165,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         id: user.id,
                         name: user.user_metadata?.full_name || formData.name || user.email.split('@')[0],
                         email: user.email,
+                        phone: user.user_metadata?.phone || formData.phone || '',
                     });
                     window.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
                     resetTurnstile();
@@ -208,8 +212,10 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
             if (error) throw error;
             setNewPassword('');
             setCurrentPassword('');
-            setSettingsMsg('Password updated successfully!');
-            setTimeout(() => setSettingsMsg(''), 3000);
+            setSettingsMsg('Password updated successfully! Please sign in again with your new password.');
+            setUserProfile(null);
+            setIsAdmin(false);
+            window.dispatchEvent(new CustomEvent('authExpired'));
         } catch (err) {
             setSettingsMsg('Error updating password: ' + err.message);
         }
@@ -271,6 +277,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             <div className="flex-1 min-w-0">
                                 <h1 className="text-xl sm:text-2xl font-bold truncate">{userProfile.name || 'User'}</h1>
                                 <p className="text-white/80 text-sm mt-1 truncate">{userProfile.email}</p>
+                                {userProfile.phone && <p className="text-white/70 text-xs mt-1 truncate flex items-center gap-1"><Phone className="w-3 h-3" />{userProfile.phone}</p>}
                                 <div className="flex items-center gap-2 mt-3">
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium border border-white/10">
                                         <Shield className="w-3 h-3" />
@@ -589,6 +596,23 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                                         onChange={handleInputChange}
                                         className="w-full pl-10 pr-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all"
                                         required
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {!isLogin && (
+                            <div className="space-y-1.5">
+                                <label className="text-sm font-medium text-dark">Phone Number</label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-secondary" />
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleInputChange}
+                                        placeholder="+92 XXX XXXXXXX"
+                                        className="w-full pl-10 pr-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all"
                                     />
                                 </div>
                             </div>

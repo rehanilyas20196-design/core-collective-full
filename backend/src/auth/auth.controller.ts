@@ -13,6 +13,7 @@ export class AuthController {
     return this.authService.signUp(body.email, body.password, body.cf_turnstile_token, {
       full_name: body.full_name,
       joiningDate: body.joiningDate,
+      phone: body.phone,
     });
   }
 
