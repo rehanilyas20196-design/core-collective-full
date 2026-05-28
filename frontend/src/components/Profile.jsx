@@ -24,8 +24,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
 
     const [accountName, setAccountName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
     const [settingsMsg, setSettingsMsg] = useState('');
     const [activeSettingsTab, setActiveSettingsTab] = useState(null);
 
@@ -197,41 +195,6 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         }
     };
 
-    const handleUpdatePassword = async () => {
-        try {
-            if (newPassword.length < 8) {
-                setSettingsMsg('New password must be at least 8 characters.');
-                return;
-            }
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user || !user.email) {
-                setSettingsMsg('Session error. Please sign out and sign in again.');
-                return;
-            }
-            const { error: signInError } = await supabase.auth.signInWithPassword({
-                email: user.email,
-                password: currentPassword,
-            });
-            if (signInError) {
-                setSettingsMsg('Current password is incorrect.');
-                return;
-            }
-            const { error } = await supabase.auth.updateUser({
-                password: newPassword
-            });
-            if (error) throw error;
-            setNewPassword('');
-            setCurrentPassword('');
-            setSettingsMsg('Password updated successfully! Please sign in with your new password.');
-            try { await supabase.auth.signOut(); } catch {}
-            setUserProfile(null);
-            setIsAdmin(false);
-            window.dispatchEvent(new CustomEvent('authExpired'));
-        } catch (err) {
-            setSettingsMsg('Error updating password: ' + err.message);
-        }
-    };
-
     const handleUpdatePhone = async () => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -391,47 +354,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                             )}
                         </div>
 
-                        {/* Update Password */}
-                        <div className="p-5">
-                            <button
-                                onClick={() => setActiveSettingsTab(activeSettingsTab === 'password' ? null : 'password')}
-                                className="w-full flex items-center gap-4 text-left group"
-                            >
-                                <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
-                                    <Lock className="w-4.5 h-4.5" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-dark">Password</p>
-                                    <p className="text-xs text-secondary">Update your account password</p>
-                                </div>
-                                <ChevronRight className={`w-4 h-4 text-secondary transition-transform ${activeSettingsTab === 'password' ? 'rotate-90' : ''}`} />
-                            </button>
-                            {activeSettingsTab === 'password' && (
-                                <div className="mt-4 pt-4 border-t border-shade-border space-y-3">
-                                    <input
-                                        type="password"
-                                        value={currentPassword}
-                                        onChange={(e) => setCurrentPassword(e.target.value)}
-                                        placeholder="Current password"
-                                        className="w-full px-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary outline-none text-sm"
-                                    />
-                                    <input
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        placeholder="New password"
-                                        className="w-full px-4 py-2.5 border border-shade-border rounded-xl bg-shade/30 focus:bg-white focus:border-primary outline-none text-sm"
-                                    />
-                                    <button
-                                        onClick={handleUpdatePassword}
-                                        disabled={!currentPassword || !newPassword}
-                                        className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
-                                    >
-                                        Update Password
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+
 
                         {/* Add Phone Number */}
                         <div className="p-5">
