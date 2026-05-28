@@ -113,6 +113,19 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #DEE2E7;
+    border-radius: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #BDC4CD;
+  }
   .sr-only {
     position: absolute;
     width: 1px;

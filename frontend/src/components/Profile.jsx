@@ -18,6 +18,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
         phone: ''
     });
     const [cfToken, setCfToken] = useState('');
+    const [turnstileError, setTurnstileError] = useState(false);
     const turnstileRef = useRef(null);
     const turnstileWidgetId = useRef(null);
 
@@ -43,10 +44,11 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                 try {
                     turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
                         sitekey: TURNSTILE_SITE_KEY,
-                        callback: (token) => setCfToken(token),
+                        callback: (token) => { setCfToken(token); setTurnstileError(false); },
                         'expired-callback': () => setCfToken(''),
+                        'error-callback': () => { setCfToken(''); setTurnstileError(true); },
                     });
-                } catch {}
+                } catch { setTurnstileError(true); }
             }
         };
         initTurnstile();
@@ -173,6 +175,7 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
 
     const resetTurnstile = () => {
         setCfToken('');
+        setTurnstileError(false);
         if (turnstileWidgetId.current) {
             try { window.turnstile.reset(turnstileWidgetId.current); } catch {}
         }
@@ -674,6 +677,9 @@ const Profile = ({ setPage, handleBack, setIsAdmin, userProfile, setUserProfile 
                         )}
 
                         <div ref={turnstileRef} className="flex justify-center" />
+                        {turnstileError && (
+                            <p className="text-xs text-danger text-center mt-1">Failed to load security check. Try refreshing the page.</p>
+                        )}
 
                         <button
                             type="submit"
