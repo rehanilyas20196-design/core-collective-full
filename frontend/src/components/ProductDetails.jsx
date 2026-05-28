@@ -11,6 +11,7 @@ const ProductDetails = ({ setPage, handleBack, product, addToCart, toggleFavorit
    const [selectedThumb, setSelectedThumb] = React.useState(0);
    const [activeTab, setActiveTab] = React.useState('description');
    const [newReview, setNewReview] = React.useState({ rating: 5, comment: '', name: '' });
+   const [quantity, setQuantity] = React.useState(1);
    const isFavorite = favorites.some(f => f.id === product?.id);
 
    const { data: relatedProducts = [], isLoading: loadingRelated } = useRelatedProducts(product?.category, product?.id);
@@ -163,26 +164,50 @@ const ProductDetails = ({ setPage, handleBack, product, addToCart, toggleFavorit
                      </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="text-sm text-[#505050]">Quantity:</span>
+                    <div className="flex items-center gap-1 border border-[#DEE2E7] rounded-md bg-white">
+                        <button
+                            onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                            className="px-3 py-1.5 hover:bg-gray-100 rounded-l-md transition-colors text-[#505050]"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                        <span className="px-3 py-1.5 text-sm font-medium min-w-[32px] text-center">{quantity}</span>
+                        <button
+                            onClick={() => setQuantity(q => q + 1)}
+                            className="px-3 py-1.5 hover:bg-gray-100 rounded-r-md transition-colors text-[#505050]"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                    </div>
+                </div>
+                <div className="flex flex-wrap gap-3 sm:gap-4">
                      <button
-                        className="flex-1 min-w-[150px] bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-bold transition-colors"
-                        onClick={() => setPage('checkout', { ...product, total: product.price })}
+                         className="flex-1 min-w-[150px] bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-bold transition-colors"
+                         onClick={() => {
+                             const itemWithQty = { ...product, qty: quantity, total: product.price * quantity };
+                             setPage('checkout', itemWithQty);
+                         }}
                      >
-                        Buy Now
+                         Buy Now
                      </button>
                      <button
-                        className="flex-1 min-w-[150px] bg-[#E3F0FF] hover:bg-[#D1E9FF] text-primary py-3 rounded-lg font-bold transition-colors"
-                        onClick={() => addToCart(product)}
+                         className="flex-1 min-w-[150px] bg-[#E3F0FF] hover:bg-[#D1E9FF] text-primary py-3 rounded-lg font-bold transition-colors"
+                         onClick={() => {
+                             const itemWithQty = { ...product, qty: quantity };
+                             addToCart(itemWithQty);
+                         }}
                      >
-                        Add to Cart
+                         Add to Cart
                      </button>
                      <button
-                        className={`w-full sm:w-12 h-12 flex items-center justify-center border border-[#DEE2E7] rounded-lg transition-colors ${isFavorite ? 'bg-primary text-white border-primary' : 'text-primary hover:bg-shade'}`}
-                        onClick={() => toggleFavorite(product)}
+                         className={`w-full sm:w-12 h-12 flex items-center justify-center border border-[#DEE2E7] rounded-lg transition-colors ${isFavorite ? 'bg-primary text-white border-primary' : 'text-primary hover:bg-shade'}`}
+                         onClick={() => toggleFavorite(product)}
                      >
-                        <Heart size={20} className={isFavorite ? 'fill-white' : ''} />
+                         <Heart size={20} className={isFavorite ? 'fill-white' : ''} />
                      </button>
-                  </div>
+                   </div>
                </div>
             </div>
 

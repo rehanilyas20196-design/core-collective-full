@@ -27,7 +27,7 @@ const PromoModal = ({ userProfile, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-dark">Get US $10 off</h3>
+          <h3 className="text-xl font-bold text-dark">Get Rs. 1000 off</h3>
           <button onClick={onClose} className="text-dark-light hover:text-dark">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
@@ -43,7 +43,7 @@ const PromoModal = ({ userProfile, onClose }) => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-dark-light">Enter your details to receive your $10 discount with a new supplier.</p>
+            <p className="text-dark-light">Enter your details to receive your Rs. 1000 discount with a new supplier.</p>
             <div>
               <label className="block text-sm font-medium text-dark mb-1">Full Name</label>
               <input
@@ -84,7 +84,7 @@ const PromoModal = ({ userProfile, onClose }) => {
               disabled={status === 'submitting'}
               className="w-full bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md font-medium transition-colors disabled:opacity-50"
             >
-              {status === 'submitting' ? 'Sending...' : 'Claim $10 Discount'}
+              {status === 'submitting' ? 'Sending...' : 'Claim Rs. 1000 Discount'}
             </button>
           </form>
         )}

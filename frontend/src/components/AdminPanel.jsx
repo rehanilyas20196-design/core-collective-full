@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
-import { Package, CheckCircle, XCircle, Clock, ExternalLink, RefreshCw, Eye, User, Phone, MapPin, CreditCard, Image as ImageIcon, Trash2, MessageSquare, Tag, FileText, Send, Search } from 'lucide-react';
+import { Package, CheckCircle, XCircle, Clock, ExternalLink, RefreshCw, Eye, User, Phone, MapPin, CreditCard, Image as ImageIcon, Trash2, MessageSquare, Tag, FileText, Send, Search, Truck, Navigation } from 'lucide-react';
 
 const TABS = ['orders', 'discount-messages', 'supplier-quotes'];
 
@@ -55,6 +55,18 @@ const AdminPanel = ({ setPage, handleBack, userProfile }) => {
         } catch (error) {
             console.error('Error updating order:', error);
             alert('Failed to update status');
+        }
+    };
+
+    const updateTracking = async (orderId, trackingStatus, note = '') => {
+        try {
+            await api.orders.updateTracking(orderId, trackingStatus, note);
+            setOrders(orders.map(order =>
+                order.id === orderId ? { ...order, tracking_status: trackingStatus } : order
+            ));
+        } catch (error) {
+            console.error('Error updating tracking:', error);
+            alert('Failed to update tracking');
         }
     };
 
@@ -284,39 +296,84 @@ const AdminPanel = ({ setPage, handleBack, userProfile }) => {
                                         </div>
                                     </div>
 
-                                    <div className="bg-white border-t border-[#DEE2E7] p-5 flex justify-between items-center">
-                                        <button
-                                            onClick={() => deleteOrder(order.id)}
-                                            className="p-2.5 text-[#FA3434] hover:bg-[#FA3434]/5 rounded-lg transition-all flex items-center gap-2 font-bold text-sm"
-                                            title="Delete Order"
-                                        >
-                                            <Trash2 size={18} />
-                                            Delete
-                                        </button>
-                                        <div className="flex gap-3">
+                                    <div className="bg-white border-t border-[#DEE2E7] p-4 sm:p-5">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                            <button
+                                                onClick={() => deleteOrder(order.id)}
+                                                className="p-2.5 text-[#FA3434] hover:bg-[#FA3434]/5 rounded-lg transition-all flex items-center gap-2 font-bold text-sm w-fit"
+                                                title="Delete Order"
+                                            >
+                                                <Trash2 size={18} />
+                                                Delete
+                                            </button>
+
                                             {order.status === 'pending' ? (
-                                                <>
+                                                <div className="flex gap-3 flex-wrap">
                                                     <button
                                                         onClick={() => updateOrderStatus(order.id, 'rejected')}
-                                                        className="px-6 py-2.5 rounded-lg border border-[#FA3434] text-[#FA3434] font-bold hover:bg-[#FA3434]/5 transition-all text-sm"
+                                                        className="px-5 py-2 rounded-lg border border-[#FA3434] text-[#FA3434] font-bold hover:bg-[#FA3434]/5 transition-all text-sm"
                                                     >
                                                         Reject Order
                                                     </button>
                                                     <button
                                                         onClick={() => updateOrderStatus(order.id, 'confirmed')}
-                                                        className="px-8 py-2.5 rounded-lg bg-[#00B517] text-white font-bold hover:bg-[#009A14] transition-all shadow-md text-sm"
+                                                        className="px-6 py-2 rounded-lg bg-[#00B517] text-white font-bold hover:bg-[#009A14] transition-all shadow-md text-sm"
                                                     >
                                                         Confirm Payment
                                                     </button>
-                                                </>
-                                            ) : (
+                                                </div>
+                                            ) : order.status === 'confirmed' || order.tracking_status ? (
+                                                <div className="space-y-3 w-full">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <span className="text-xs font-bold text-[#8B96A5] uppercase tracking-wider">Update Tracking:</span>
+                                                        <select
+                                                            onChange={(e) => {
+                                                                const val = e.target.value;
+                                                                if (val) updateTracking(order.id, val, '');
+                                                                e.target.value = '';
+                                                            }}
+                                                            className="px-3 py-1.5 border border-[#DEE2E7] rounded-lg text-sm outline-none focus:border-primary"
+                                                            defaultValue=""
+                                                        >
+                                                            <option value="" disabled>Select status...</option>
+                                                            <option value="shipped">Shipped</option>
+                                                            <option value="in_transit">In Transit</option>
+                                                            <option value="out_for_delivery">Out for Delivery</option>
+                                                            <option value="delivered">Delivered</option>
+                                                        </select>
+                                                    </div>
+                                                    {order.tracking_status && (
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className="text-xs text-[#8B96A5]">Current: </span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                                                                order.tracking_status === 'confirmed' ? 'bg-blue-100 text-blue-700' :
+                                                                order.tracking_status === 'shipped' ? 'bg-purple-100 text-purple-700' :
+                                                                order.tracking_status === 'in_transit' ? 'bg-orange-100 text-orange-700' :
+                                                                order.tracking_status === 'out_for_delivery' ? 'bg-amber-100 text-amber-700' :
+                                                                order.tracking_status === 'delivered' ? 'bg-green-100 text-green-700' :
+                                                                'bg-gray-100 text-gray-600'
+                                                            }`}>
+                                                                {order.tracking_status === 'in_transit' ? 'In Transit' :
+                                                                 order.tracking_status === 'out_for_delivery' ? 'Out for Delivery' :
+                                                                 order.tracking_status}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => updateOrderStatus(order.id, 'pending')}
+                                                                className="text-[#8B96A5] text-xs hover:underline ml-2"
+                                                            >
+                                                                Revert to Pending
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ) : order.status === 'rejected' ? (
                                                 <button
                                                     onClick={() => updateOrderStatus(order.id, 'pending')}
                                                     className="text-[#8B96A5] text-sm hover:underline"
                                                 >
                                                     Revert to Pending
                                                 </button>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
                                 </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import bgImg from '../assets/Image/backgrounds/image 107.png';
 import { api } from '../lib/api';
 
-const InquiryForm = () => {
+const InquiryForm = ({ userProfile }) => {
   const [formData, setFormData] = useState({
     item_name: '',
     details: '',
@@ -27,7 +27,6 @@ const InquiryForm = () => {
         details: formData.details.trim(),
         quantity: Number(formData.quantity) || 0,
         unit: formData.unit,
-        status: 'pending',
       };
 
       await api.supplierInquiries.create(payload);
@@ -63,9 +62,17 @@ const InquiryForm = () => {
           </p>
         </div>
 
-        <div className="bg-white p-5 sm:p-6 lg:p-8 rounded-lg shadow-xl w-full max-w-[440px] text-dark">
+          <div className="bg-white p-5 sm:p-6 lg:p-8 rounded-lg shadow-xl w-full max-w-[440px] text-dark">
           <h3 className="text-lg font-bold mb-6">Send quote to suppliers</h3>
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {userProfile && (
+              <input
+                type="email"
+                value={userProfile.email}
+                disabled
+                className="w-full px-4 py-2 border border-shade-border rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
+              />
+            )}
             <input 
               type="text" 
               name="item_name"

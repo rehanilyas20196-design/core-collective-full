@@ -61,3 +61,13 @@ export class UpdateOrderStatusDto {
   @IsIn(['pending', 'confirmed', 'rejected'])
   status: string;
 }
+
+export class UpdateTrackingStatusDto {
+  @IsString()
+  @IsIn(['confirmed', 'shipped', 'in_transit', 'out_for_delivery', 'delivered'])
+  tracking_status: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+}

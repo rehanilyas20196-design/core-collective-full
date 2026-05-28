@@ -179,3 +179,9 @@ CREATE INDEX IF NOT EXISTS idx_discount_messages_status ON discount_messages(sta
 CREATE INDEX IF NOT EXISTS idx_supplier_inquiries_user_id ON supplier_inquiries(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_user_messages_user_id ON user_messages(user_id);
+
+-- ============================================================
+-- MIGRATION 2: Add tracking columns to orders
+-- ============================================================
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_status TEXT DEFAULT 'pending';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_history JSONB DEFAULT '[]'::jsonb;

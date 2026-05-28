@@ -67,6 +67,9 @@ export class OrdersService {
 
     if (data && data.length > 0 && userId) {
       const order = data[0];
+      const trackingHistory = [{ status: 'pending', date: new Date().toISOString(), note: 'Order placed and pending review' }];
+      await this.supabase.from('orders').update({ tracking_status: 'pending', tracking_history: JSON.stringify(trackingHistory) }).eq('id', order.id);
+
       await this.supabase.from('notifications').insert([{
         user_id: userId,
         type: 'pending',
@@ -92,8 +95,15 @@ export class OrdersService {
       const notifType = status === 'confirmed' ? 'success' : 'error';
       const notifTitle = status === 'confirmed' ? 'Order Confirmed' : 'Order Rejected';
       const notifMessage = status === 'confirmed'
-        ? `Your order #ORD-${String(order.id).padStart(6, '0')} has been confirmed! Thank you for your purchase.`
+        ? `Your order #ORD-${String(order.id).padStart(6, '0')} has been confirmed! Your items are being prepared.`
         : `Your order #ORD-${String(order.id).padStart(6, '0')} has been rejected. Please contact support for more details.`;
+
+      if (status === 'confirmed') {
+        const existingHistory = order.tracking_history || [];
+        const newEntry = { status: 'confirmed', date: new Date().toISOString(), note: 'Order confirmed - items are being prepared' };
+        const updatedHistory = Array.isArray(existingHistory) ? [...existingHistory, newEntry] : [newEntry];
+        await this.supabase.from('orders').update({ tracking_status: 'confirmed', tracking_history: JSON.stringify(updatedHistory) }).eq('id', order.id);
+      }
 
       await this.supabase.from('notifications').insert([{
         user_id: order.user_id,
@@ -101,6 +111,44 @@ export class OrdersService {
         title: notifTitle,
         message: notifMessage,
         data: { order_id: order.id },
+      }]);
+    }
+
+    return data;
+  }
+
+  async updateTracking(orderId: number, trackingStatus: string, note?: string) {
+    const { data: order, error: fetchError } = await this.supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+    if (fetchError || !order) throw new NotFoundException('Order not found');
+
+    const existingHistory = order.tracking_history || [];
+    const historyArray = Array.isArray(existingHistory) ? existingHistory : [];
+    const newEntry = { status: trackingStatus, date: new Date().toISOString(), note: note || getDefaultNote(trackingStatus) };
+    const updatedHistory = [...historyArray, newEntry];
+
+    const { data, error } = await this.supabase
+      .from('orders')
+      .update({ tracking_status: trackingStatus, tracking_history: JSON.stringify(updatedHistory), status: trackingStatus === 'delivered' ? 'delivered' : order.status })
+      .eq('id', orderId)
+      .select();
+    if (error) throw new InternalServerErrorException(error.message);
+
+    if (order.user_id) {
+      const statusLabels = { confirmed: 'Confirmed', shipped: 'Shipped', in_transit: 'In Transit', out_for_delivery: 'Out for Delivery', delivered: 'Delivered' };
+      const label = statusLabels[trackingStatus] || trackingStatus;
+      const notifTitle = `Order #ORD-${String(orderId).padStart(6, '0')} - ${label}`;
+      const notifMessage = `Your order #ORD-${String(orderId).padStart(6, '0')} has been updated to "${label}".${note ? ` Note: ${note}` : ''}`;
+
+      await this.supabase.from('notifications').insert([{
+        user_id: order.user_id,
+        type: trackingStatus === 'delivered' ? 'success' : 'info',
+        title: notifTitle,
+        message: notifMessage,
+        data: { order_id: orderId, tracking_status: trackingStatus },
       }]);
     }
 
@@ -115,4 +163,15 @@ export class OrdersService {
     if (error) throw new InternalServerErrorException(error.message);
     return { deleted: true };
   }
+}
+
+function getDefaultNote(status: string): string {
+  const notes = {
+    confirmed: 'Order confirmed - items are being prepared',
+    shipped: 'Order has been shipped',
+    in_transit: 'Order is in transit',
+    out_for_delivery: 'Order is out for delivery',
+    delivered: 'Order has been delivered successfully',
+  };
+  return notes[status] || `Status updated to ${status}`;
 }

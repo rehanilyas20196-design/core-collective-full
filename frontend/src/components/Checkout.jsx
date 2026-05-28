@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronRight, CreditCard, Landmark, Phone, ArrowLeft, CheckCircle2, Upload, ImageIcon, X, Clock } from 'lucide-react';
 import { api } from '../lib/api';
 
-const Checkout = ({ setPage, handleBack, cartItems, total }) => {
+const Checkout = ({ setPage, handleBack, cartItems, total, clearCart }) => {
     const [formData, setFormData] = useState({
         fullName: '',
         phoneNumber: '',
@@ -63,6 +63,7 @@ const Checkout = ({ setPage, handleBack, cartItems, total }) => {
                 payment_screenshot: screenshotUrl,
                 items: cartItems,
             });
+            if (clearCart) clearCart();
             setStep(3);
         } catch (error) {
             console.error('Error saving order:', error);
@@ -342,14 +343,14 @@ const Checkout = ({ setPage, handleBack, cartItems, total }) => {
                                             <p className="text-sm font-medium line-clamp-1">{item.name || item.title}</p>
                                             <p className="text-xs text-[#8B96A5]">Qty: {item.qty || 1}</p>
                                         </div>
-                                        <p className="text-sm font-bold">Rs. {item.price}</p>
+                                        <p className="text-sm font-bold">Rs. {(item.price * (item.qty || 1)).toFixed(2)}</p>
                                     </div>
                                 ))}
                             </div>
 
                             <div className="border-t border-[#DEE2E7] pt-4 space-y-3">
                                 <div className="flex justify-between text-[#505050]">
-                                    <span>Items Total ({cartItems.length} items)</span>
+                                    <span>Items Total ({cartItems.reduce((s, i) => s + (i.qty || 1), 0)} items)</span>
                                     <span>Rs. {total}</span>
                                 </div>
                                 <div className="flex justify-between text-[#505050]">

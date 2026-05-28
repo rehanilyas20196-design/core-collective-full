@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ArrowLeft, Trash2, Heart, ShieldCheck, Truck, MessageSquare, ShoppingCart, Tag } from 'lucide-react';
+import { Minus, Plus, ArrowLeft, Trash2, Heart, ShieldCheck, Truck, MessageSquare, ShoppingCart, Tag } from 'lucide-react';
 import { api } from '../lib/api';
 
 const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, clearCart }) => {
@@ -36,6 +36,12 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
             return [...prev, { ...item, qty: 1 }];
         });
         setSavedForLater(prev => prev.filter(i => i.id !== item.id));
+    };
+
+    const updateQty = (item, newQty) => {
+        if (newQty < 1) return;
+        setCartItems(prev => prev.map(i => i.id === item.id ? { ...i, qty: newQty } : i));
+        api.cart.updateQty(item.id, newQty).catch(console.error);
     };
 
     const handleDiscountSubmit = async (e) => {
@@ -154,10 +160,22 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                                     </div>
 
                                     <div className="flex flex-row sm:flex-col sm:items-end justify-between gap-3 min-w-[120px]">
-                                        <span className="text-lg font-bold text-[#1C1C1C]">Rs. {item.price.toFixed(2)}</span>
-                                        <div className="flex items-center gap-2 border border-[#DEE2E7] rounded-md px-3 py-2 bg-white cursor-pointer hover:bg-shade transition-colors">
-                                            <span className="text-sm">Qty: {item.qty}</span>
-                                            <ChevronDown size={14} className="opacity-50" />
+                                        <span className="text-lg font-bold text-[#1C1C1C]">Rs. {(item.price * (item.qty || 1)).toFixed(2)}</span>
+                                        <div className="flex items-center gap-1 border border-[#DEE2E7] rounded-md bg-white">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); updateQty(item, (item.qty || 1) - 1); }}
+                                                className="px-2 py-1.5 hover:bg-gray-100 rounded-l-md transition-colors text-[#505050] disabled:opacity-30"
+                                                disabled={(item.qty || 1) <= 1}
+                                            >
+                                                <Minus size={14} />
+                                            </button>
+                                            <span className="px-2 py-1.5 text-sm font-medium min-w-[28px] text-center">{item.qty || 1}</span>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); updateQty(item, (item.qty || 1) + 1); }}
+                                                className="px-2 py-1.5 hover:bg-gray-100 rounded-r-md transition-colors text-[#505050]"
+                                            >
+                                                <Plus size={14} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -250,8 +268,8 @@ const Cart = ({ setPage, handleBack, cartItems, setCartItems, removeFromCart, cl
                     <div className="bg-white border border-[#DEE2E7] rounded-lg p-4 sm:p-5 shadow-sm">
                         <div className="space-y-3 mb-4">
                             <div className="flex justify-between text-[#505050]">
-                                <span>Subtotal:</span>
-                                <span>Rs. {subtotal.toFixed(2)}</span>
+                                <span>Items Total ({cartItems.reduce((s, i) => s + (i.qty || 1), 0)} items)</span>
+                                <span>Rs. {total}</span>
                             </div>
                             <div className="flex justify-between text-[#FA3434]">
                                 <span>Discount:</span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense, useCallback, useRef } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useCallback, useRef, startTransition } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Deals from './components/Deals';
@@ -180,6 +180,7 @@ function App() {
       window.dispatchEvent(new CustomEvent('setAuthMode', { detail: 'login' }));
       return;
     }
+    const selectedQty = product.qty || 1;
     const normalizedProduct = {
       ...product,
       title: product.title || product.name || 'Product',
@@ -194,14 +195,14 @@ function App() {
       const existingItem = prev.find(item => item.id === normalizedProduct.id);
       if (existingItem) {
         return prev.map(item =>
-          item.id === normalizedProduct.id ? { ...item, qty: (item.qty || 1) + 1 } : item
+          item.id === normalizedProduct.id ? { ...item, qty: (item.qty || 1) + selectedQty } : item
         );
       }
-      return [...prev, { ...normalizedProduct, qty: 1 }];
+      return [...prev, { ...normalizedProduct, qty: selectedQty }];
     });
 
     try {
-      await api.cart.add(normalizedProduct.id, 1, normalizedProduct);
+      await api.cart.add(normalizedProduct.id, selectedQty, normalizedProduct);
     } catch (e) {
       console.error('Error syncing cart:', e);
     }
@@ -260,23 +261,26 @@ function App() {
       return;
     }
 
-    if (page !== currentPage) {
-      setHistory(prev => [...prev, { page: currentPage, category: selectedCategory, query: searchQuery, product: selectedProduct, data: navigationData }]);
-    }
-
-    if (page === 'listing') {
-      if (data?.category) {
-        setSelectedCategory(data.category);
-      } else {
-        setSelectedCategory(null);
+    startTransition(() => {
+      if (page !== currentPage) {
+        setHistory(prev => [...prev, { page: currentPage, category: selectedCategory, query: searchQuery, product: selectedProduct, data: navigationData }]);
+        window.history.pushState({ page: currentPage }, '');
       }
-      setSearchQuery(data?.query || '');
-    }
-    if (data?.id) {
-      setSelectedProduct(data);
-    }
-    setNavigationData(data);
-    setCurrentPage(page);
+
+      if (page === 'listing') {
+        if (data?.category) {
+          setSelectedCategory(data.category);
+        } else {
+          setSelectedCategory(null);
+        }
+        setSearchQuery(data?.query || '');
+      }
+      if (data?.id) {
+        setSelectedProduct(data);
+      }
+      setNavigationData(data);
+      setCurrentPage(page);
+    });
   };
 
   const handleBack = () => {
@@ -286,14 +290,21 @@ function App() {
     }
 
     const lastState = history[history.length - 1];
-    setHistory(prev => prev.slice(0, -1));
-
-    setCurrentPage(lastState.page);
-    setSelectedCategory(lastState.category);
-    setSearchQuery(lastState.query);
-    setSelectedProduct(lastState.product);
-    setNavigationData(lastState.data);
+    startTransition(() => {
+      setHistory(prev => prev.slice(0, -1));
+      setCurrentPage(lastState.page);
+      setSelectedCategory(lastState.category);
+      setSearchQuery(lastState.query);
+      setSelectedProduct(lastState.product);
+      setNavigationData(lastState.data);
+    });
   };
+
+  useEffect(() => {
+    const handlePopState = () => handleBack();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [history]);
 
   const renderContent = () => {
     switch (currentPage) {
@@ -310,7 +321,7 @@ function App() {
       case 'favorites':
         return <Suspense fallback={<SectionFallback />}><ProductListing setPage={handleSetPage} handleBack={handleBack} category="My Favorites" productsOverride={favorites} addToCart={addToCart} toggleFavorite={toggleFavorite} favorites={favorites} /></Suspense>;
       case 'checkout':
-        return <Suspense fallback={<SectionFallback />}><Checkout setPage={handleSetPage} handleBack={handleBack} cartItems={navigationData?.id ? [navigationData] : cartItems} total={navigationData?.total || cartItems.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0)} /></Suspense>;
+        return <Suspense fallback={<SectionFallback />}><Checkout setPage={handleSetPage} handleBack={handleBack} cartItems={navigationData?.id ? [navigationData] : cartItems} total={navigationData?.total || cartItems.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0)} clearCart={clearCart} /></Suspense>;
       case 'profile':
         return <Suspense fallback={<SectionFallback />}><Profile setPage={handleSetPage} handleBack={handleBack} setIsAdmin={setIsAdmin} userProfile={userProfile} setUserProfile={setUserProfile} /></Suspense>;
       case 'message':
@@ -365,10 +376,13 @@ function App() {
                 items={categories?.[cat] ?? []}
                 setPage={handleSetPage}
                 category={cat}
+                addToCart={addToCart}
+                toggleFavorite={toggleFavorite}
+                favorites={favorites}
               />
             ))}
 
-            <Suspense fallback={<SectionFallback />}><InquiryForm /></Suspense>
+            <Suspense fallback={<SectionFallback />}><InquiryForm userProfile={userProfile} /></Suspense>
             <Suspense fallback={<SectionFallback />}><RecommendedItems setPage={handleSetPage} /></Suspense>
             <Suspense fallback={<SectionFallback />}><Services /></Suspense>
             <Suspense fallback={<SectionFallback />}><RegionSuppliers /></Suspense>

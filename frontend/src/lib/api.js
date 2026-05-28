@@ -95,6 +95,7 @@ export const api = {
     getConfirmedCount: () => request('/orders/confirmed-count'),
     create: (orderData) => request('/orders', { method: 'POST', body: orderData }),
     updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PATCH', body: { status } }),
+    updateTracking: (id, trackingStatus, note) => request(`/orders/${id}/tracking`, { method: 'PATCH', body: { tracking_status: trackingStatus, note } }),
     delete: (id) => request(`/orders/${id}`, { method: 'DELETE' }),
   },
 

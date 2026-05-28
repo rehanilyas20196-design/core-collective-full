@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronRight, Grid, List, ChevronDown, Star, Heart, X } from 'lucide-react';
+import { ChevronRight, Grid, List, ChevronDown, Star, Heart, X, Minus, Plus } from 'lucide-react';
 import { useProducts, useCategories } from '../hooks/useProducts';
 
 
@@ -9,6 +9,7 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedRating, setSelectedRating] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [qtyMap, setQtyMap] = useState({});
 
   const { data: productsData = [], isLoading: productsLoading } = useProducts(query);
   const { categoryList: categoryOptions, isLoading: categoriesLoading } = useCategories();
@@ -332,8 +333,53 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
                         <p className="text-[#505050] text-sm line-clamp-3 mb-4">{product.description}</p>
                       )}
 
+                      {/* Quantity selector and Add to Cart - Grid */}
+                      {viewMode === 'grid' && !isFavoritesPage && (
+                        <div className="mt-auto space-y-2">
+                          <div className="flex items-center gap-1 border border-[#DEE2E7] rounded-md bg-white w-fit mx-auto">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setQtyMap(prev => ({ ...prev, [product.id]: Math.max(1, (prev[product.id] || 1) - 1) })); }}
+                              className="px-2 py-1 hover:bg-gray-100 rounded-l-md transition-colors"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="px-2 py-1 text-xs font-medium min-w-[24px] text-center">{qtyMap[product.id] || 1}</span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setQtyMap(prev => ({ ...prev, [product.id]: (prev[product.id] || 1) + 1 })); }}
+                              className="px-2 py-1 hover:bg-gray-100 rounded-r-md transition-colors"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                          <button
+                            className="w-full px-2 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-medium transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart({ ...product, qty: qtyMap[product.id] || 1 });
+                            }}
+                          >
+                            Add to Cart
+                          </button>
+                        </div>
+                      )}
+
                       {viewMode === 'list' && (
-                        <div className="flex flex-wrap gap-3 mt-auto">
+                        <div className="flex flex-wrap gap-3 mt-auto items-center">
+                          <div className="flex items-center gap-1 border border-[#DEE2E7] rounded-md bg-white">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setQtyMap(prev => ({ ...prev, [product.id]: Math.max(1, (prev[product.id] || 1) - 1) })); }}
+                              className="px-2 py-1 hover:bg-gray-100 rounded-l-md transition-colors"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="px-2 py-1 text-xs font-medium min-w-[24px] text-center">{qtyMap[product.id] || 1}</span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setQtyMap(prev => ({ ...prev, [product.id]: (prev[product.id] || 1) + 1 })); }}
+                              className="px-2 py-1 hover:bg-gray-100 rounded-r-md transition-colors"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
                           <button
                             className="text-primary font-medium text-sm hover:underline"
                             onClick={(e) => {
@@ -348,7 +394,7 @@ const ProductListing = ({ setPage, handleBack, category, query, productsOverride
                             className="text-[#00B517] font-medium text-sm hover:underline"
                             onClick={(e) => {
                               e.stopPropagation();
-                              addToCart(product);
+                              addToCart({ ...product, qty: qtyMap[product.id] || 1 });
                             }}
                           >
                             Add to cart
