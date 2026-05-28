@@ -162,6 +162,7 @@ const Header = ({ setPage, cartCount, favoritesCount, confirmedOrdersCount, isAd
       <div className="border-t border-shade-border bg-white lg:overflow-visible no-scrollbar">
         <div className="container py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between whitespace-nowrap gap-3 sm:gap-4">
           <nav className="flex flex-wrap items-center gap-4 sm:gap-6 font-medium text-dark text-sm sm:text-base w-full pb-1 sm:pb-0">
+            <a href="#" className="hover:text-primary transition-colors" onClick={(e) => { e.preventDefault(); setPage('home'); }} aria-label="Go to home page">Home</a>
             <div className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors" onClick={() => setPage('listing')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setPage('listing'); }} aria-label="All categories">
               <Menu className="w-5 h-5" />
               <span>All Categories</span>
