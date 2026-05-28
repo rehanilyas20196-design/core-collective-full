@@ -104,6 +104,20 @@ function App() {
         qty: item.qty,
         cart_item_id: item.id,
       }));
+      const saved = localStorage.getItem(`core_${userId}_cart`);
+      if (saved) {
+        const local = JSON.parse(saved);
+        if (local.length > 0 && items.length === 0) return;
+        if (local.length > 0 && items.length > 0) {
+          const merged = [...local];
+          const localIds = new Set(local.map(i => i.id));
+          for (const apiItem of items) {
+            if (!localIds.has(apiItem.id)) merged.push(apiItem);
+          }
+          setCartItems(merged);
+          return;
+        }
+      }
       setCartItems(items);
     } catch (e) {
       console.error('Error loading cart:', e);
@@ -122,6 +136,20 @@ function App() {
         ...item.product_data,
         fav_id: item.id,
       }));
+      const saved = localStorage.getItem(`core_${userId}_fav`);
+      if (saved) {
+        const local = JSON.parse(saved);
+        if (local.length > 0 && items.length === 0) return;
+        if (local.length > 0 && items.length > 0) {
+          const merged = [...local];
+          const localIds = new Set(local.map(i => i.id));
+          for (const apiItem of items) {
+            if (!localIds.has(apiItem.id)) merged.push(apiItem);
+          }
+          setFavorites(merged);
+          return;
+        }
+      }
       setFavorites(items);
     } catch (e) {
       console.error('Error loading favorites:', e);
@@ -197,16 +225,11 @@ function App() {
       }
     };
     const handleAuthExpired = () => {
-      const uid = userIdRef.current;
       setUserProfile(null);
       setIsAdmin(false);
       setCartItems([]);
       setFavorites([]);
       setNotifCount(0);
-      if (uid) {
-        localStorage.removeItem(`core_${uid}_cart`);
-        localStorage.removeItem(`core_${uid}_fav`);
-      }
     };
     window.addEventListener('authChanged', handleAuthChange);
     window.addEventListener('authExpired', handleAuthExpired);
