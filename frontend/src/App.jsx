@@ -114,11 +114,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    let initialized = false;
+    let cancelled = false;
 
     const onUserReady = (user) => {
-      if (initialized) return;
-      initialized = true;
+      if (cancelled) return;
       const profile = {
         id: user.id,
         name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
@@ -133,26 +132,19 @@ function App() {
       loadNotifications(user.id);
     };
 
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      const session = data?.session;
-      const user = session?.user;
-      if (!user || !session?.access_token) return;
-      const { error: tokenError } = await supabase.auth.getUser(session.access_token);
-      if (tokenError) {
-        await supabase.auth.signOut();
-        return;
-      }
-      onUserReady(user);
-    })();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'INITIAL_SESSION' && session?.user) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session?.user) {
         onUserReady(session.user);
       }
     });
 
-    return () => listener?.subscription?.unsubscribe();
+    supabase.auth.getUser().then(({ data: { user }, error }) => {
+      if (!error && user && !cancelled) {
+        onUserReady(user);
+      }
+    });
+
+    return () => { cancelled = true; subscription?.unsubscribe(); };
   }, [loadCart, loadFavorites, loadNotifications]);
 
   useEffect(() => {
