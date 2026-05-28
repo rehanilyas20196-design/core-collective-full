@@ -21,10 +21,12 @@ function sanitizeUrls(obj) {
 
 async function getToken() {
   const { supabase } = await import('./supabase');
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) return session.access_token;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return '';
-  const { data: { session } } = await supabase.auth.getSession();
-  return session?.access_token || '';
+  const { data: { session: refreshed } } = await supabase.auth.getSession();
+  return refreshed?.access_token || '';
 }
 
 async function request(path, options = {}) {

@@ -61,6 +61,33 @@ function App() {
   const [notifCount, setNotifCount] = useState(0);
 
   const loadingRef = useRef({ cart: false, fav: false });
+  const userIdRef = useRef(null);
+
+  useEffect(() => { userIdRef.current = userProfile?.id; }, [userProfile?.id]);
+
+  const storageKey = (key) => `core_${userProfile?.id || 'anon'}_${key}`;
+
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    const savedCart = localStorage.getItem(storageKey('cart'));
+    if (savedCart) setCartItems(JSON.parse(savedCart));
+  }, [userProfile?.id]);
+
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    const savedFav = localStorage.getItem(storageKey('fav'));
+    if (savedFav) setFavorites(JSON.parse(savedFav));
+  }, [userProfile?.id]);
+
+  useEffect(() => {
+    if (!userProfile?.id || cartItems.length === 0) return;
+    localStorage.setItem(storageKey('cart'), JSON.stringify(cartItems));
+  }, [cartItems, userProfile?.id]);
+
+  useEffect(() => {
+    if (!userProfile?.id || favorites.length === 0) return;
+    localStorage.setItem(storageKey('fav'), JSON.stringify(favorites));
+  }, [favorites, userProfile?.id]);
 
   const { categories, categoryList } = useCategories();
   const { data: confirmedOrdersCountResult } = useConfirmedOrdersCount(userProfile?.id);
@@ -170,11 +197,16 @@ function App() {
       }
     };
     const handleAuthExpired = () => {
+      const uid = userIdRef.current;
       setUserProfile(null);
       setIsAdmin(false);
       setCartItems([]);
       setFavorites([]);
       setNotifCount(0);
+      if (uid) {
+        localStorage.removeItem(`core_${uid}_cart`);
+        localStorage.removeItem(`core_${uid}_fav`);
+      }
     };
     window.addEventListener('authChanged', handleAuthChange);
     window.addEventListener('authExpired', handleAuthExpired);
